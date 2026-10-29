@@ -1,0 +1,19 @@
+QuestData - Creates Interactible script (Quest Data)
+
+InventoryManager - Manage/check/hold inventory
+
+QuestDoorInteraction - For interacting the final objective (door) to go to the next map.
+
+QuestLocationTrigger - Works like QuestDoorInteraction, but for Reach Location type
+
+QuestLocationTrigger - for normal quest objective with reach location objectives type.
+
+QuestLogUI - Updates the Quest Log (J button)
+
+QuestManager - Manages the quests
+
+QuestNPCInteraction - Script for NPCs with that is a part of a quest (Can also be applied on objects that a player may interact, example: treasure chest)
+
+QuestSceneTransition - Responsible for transition of Scene to Scene
+
+QuestUITracker - Updates the Quest HUD

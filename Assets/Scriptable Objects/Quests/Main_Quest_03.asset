@@ -1,0 +1,52 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fd4d367f16334cd49b4c963507fd0e73, type: 3}
+  m_Name: Main_Quest_03
+  m_EditorClassIdentifier: Assembly-CSharp::QuestData
+  questID: main_quest_03
+  questTitle: RAID!!
+  questDescription: raid!!!!
+  questType: 0
+  prerequisiteQuestIDs: []
+  objectives:
+  - objectiveID: Talk_to_Rosa
+    description: Kausapin si Rosa
+    objectiveType: 0
+    requiredAmount: 1
+  - objectiveID: Back_to_Village
+    description: Bumalik sa Village
+    objectiveType: 2
+    requiredAmount: 1
+  - objectiveID: Talk_to_Aling_Elena
+    description: Kausapin si Aling Elena
+    objectiveType: 0
+    requiredAmount: 1
+  - objectiveID: Find_Pepe
+    description: Hanapin si Pepe
+    objectiveType: 0
+    requiredAmount: 1
+  - objectiveID: Find_knife
+    description: Humanap ng kampit
+    objectiveType: 1
+    requiredAmount: 1
+  - objectiveID: Free_Pepe
+    description: Pakawalan si Pepe
+    objectiveType: 0
+    requiredAmount: 1
+  - objectiveID: Talk_to_Mang_Rodolfo
+    description: Bumalik at kausapin si Mang Rodolfo
+    objectiveType: 0
+    requiredAmount: 1
+  - objectiveID: Find_the_Escape_Route
+    description: Tumakas
+    objectiveType: 2
+    requiredAmount: 1
