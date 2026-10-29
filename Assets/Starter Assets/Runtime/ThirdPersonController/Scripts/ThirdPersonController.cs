@@ -161,10 +161,12 @@ namespace StarterAssets
             Move();
         }
 
+
         private void LateUpdate()
         {
             CameraRotation();
         }
+
 
         private void AssignAnimationIDs()
         {

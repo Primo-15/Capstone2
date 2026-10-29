@@ -38,9 +38,21 @@ public class QuestNPCInteraction : MonoBehaviour
     [TextArea(2, 4)]
     [SerializeField] private string[] completedQuestLines;
 
+    [Tooltip("Shown when the player talks to this NPC before the quest has started (e.g. before talking to the NPC that starts it). Ignored on the NPC that starts the quest.")]
+    [TextArea(2, 4)]
+    [SerializeField] private string[] questNotStartedLines;
+
+    [Tooltip("Shown when the player talks to this NPC again after already receiving her reward item.")]
+    [TextArea(2, 4)]
+    [SerializeField] private string[] alreadyReceivedLines;
+
     [Tooltip("Shown while this NPC's quest is active but no objective entry matches.")]
     [TextArea(2, 4)]
     [SerializeField] private string[] inProgressLines;
+
+    // True while ANY NPC dialogue is open. The player movement script
+    // checks this to block movement until the dialogue is finished.
+    public static bool IsInDialogue { get; private set; }
 
     private string[] currentLines;
     private int currentDialogueIndex;
@@ -144,6 +156,13 @@ public class QuestNPCInteraction : MonoBehaviour
 
         QuestData quest = manager.ActiveQuest;
 
+        // The quest hasn't started yet (player skipped the NPC that starts it).
+        if (!startsQuest &&
+            !manager.IsQuestCompleted(questID) &&
+            (quest == null || quest.questID != questID) &&
+            questNotStartedLines != null && questNotStartedLines.Length > 0)
+            return questNotStartedLines;
+
         // The quest is in progress.
         if (quest != null &&
             quest.questID == questID &&
@@ -161,6 +180,16 @@ public class QuestNPCInteraction : MonoBehaviour
 
                 if (inventory != null && !inventory.HasItem(requiredItemID))
                     return missingItemLines;
+            }
+
+            // Already gave the reward item: use the "already received" lines.
+            if (!string.IsNullOrWhiteSpace(rewardItemID) &&
+                alreadyReceivedLines != null && alreadyReceivedLines.Length > 0)
+            {
+                InventoryManager inv = InventoryManager.Instance;
+
+                if (hasGivenReward || (inv != null && inv.HasItem(rewardItemID)))
+                    return alreadyReceivedLines;
             }
 
             // Lines written for the current objective.
@@ -208,6 +237,7 @@ public class QuestNPCInteraction : MonoBehaviour
         currentLines = lines;
         currentDialogueIndex = 0;
         dialogueActive = true;
+        IsInDialogue = true;
         dialoguePanel.SetActive(true);
 
         ShowCurrentDialogue();
@@ -233,9 +263,21 @@ public class QuestNPCInteraction : MonoBehaviour
             npcName + ":\n" + currentLines[currentDialogueIndex];
     }
 
+    private void OnDisable()
+    {
+        // Safety: never leave the player frozen if this NPC is
+        // disabled or the scene changes mid-dialogue.
+        if (dialogueActive)
+        {
+            dialogueActive = false;
+            IsInDialogue = false;
+        }
+    }
+
     private void EndDialogue()
     {
         dialogueActive = false;
+        IsInDialogue = false;
 
         if (dialoguePanel != null)
             dialoguePanel.SetActive(false);
