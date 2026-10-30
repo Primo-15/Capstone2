@@ -1,7 +1,7 @@
-
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class QuestManager : MonoBehaviour
 {
@@ -9,6 +9,10 @@ public class QuestManager : MonoBehaviour
 
     [Header("Quest Definitions")]
     [SerializeField] private QuestData[] availableQuests;
+
+    [Header("Autosave")]
+    [Tooltip("Quest IDs that trigger an autosave when completed. Leave empty to autosave on every quest.")]
+    [SerializeField] private string[] autosaveQuestIDs;
 
     private readonly Dictionary<string, QuestData> questDatabase =
         new Dictionary<string, QuestData>();
@@ -41,6 +45,10 @@ public class QuestManager : MonoBehaviour
         Instance = this;
         DontDestroyOnLoad(gameObject);
         BuildQuestDatabase();
+
+        // If the game was launched fresh and Continue was pressed,
+        // this new instance restores the saved progress.
+        ApplyPendingSave();
     }
 
     private void BuildQuestDatabase()
@@ -71,6 +79,71 @@ public class QuestManager : MonoBehaviour
             questDatabase.Add(quest.questID, quest);
         }
     }
+
+    // ---------- Save / Load / Reset ----------
+
+    public SaveData CreateSaveData()
+    {
+        SaveData data = new SaveData();
+        data.sceneName = SceneManager.GetActiveScene().name;
+        data.completedQuestIds = new List<string>(completedQuestIDs);
+
+        GameObject player = GameObject.FindWithTag("Player");
+        if (player != null)
+        {
+            data.hasPosition = true;
+            data.playerPosition = player.transform.position;
+            data.playerYRotation = player.transform.eulerAngles.y;
+        }
+        else
+        {
+            Debug.LogWarning("No GameObject tagged 'Player' found, position not saved.");
+        }
+
+        return data;
+    }
+
+    // Restores progress from SaveSystem.Pending (set by the Continue button).
+    public void ApplyPendingSave()
+    {
+        SaveData data = SaveSystem.Pending;
+        if (data == null)
+            return;
+
+        completedQuestIDs.Clear();
+        if (data.completedQuestIds != null)
+        {
+            foreach (string id in data.completedQuestIds)
+                completedQuestIDs.Add(id);
+        }
+
+        activeQuest = null;
+        currentObjectiveIndex = 0;
+        currentObjectiveProgress = 0;
+
+        SaveSystem.Pending = null;
+        Debug.Log($"Save restored: {completedQuestIDs.Count} completed quest(s).");
+    }
+
+    // Wipes all progress. Used by Start Game for a true new game.
+    public void ResetProgress()
+    {
+        completedQuestIDs.Clear();
+        activeQuest = null;
+        currentObjectiveIndex = 0;
+        currentObjectiveProgress = 0;
+        Debug.Log("Quest progress reset.");
+    }
+
+    private bool ShouldAutosave(string questID)
+    {
+        if (autosaveQuestIDs == null || autosaveQuestIDs.Length == 0)
+            return true;
+
+        return Array.IndexOf(autosaveQuestIDs, questID) >= 0;
+    }
+
+    // ---------- Quest logic ----------
 
     public bool StartQuest(string questID)
     {
@@ -240,6 +313,10 @@ public class QuestManager : MonoBehaviour
         activeQuest = null;
         currentObjectiveIndex = 0;
         currentObjectiveProgress = 0;
+
+        // Autosave when a listed questline is finished
+        if (ShouldAutosave(finishedQuest.questID))
+            SaveSystem.Save(CreateSaveData());
 
         OnQuestCompleted?.Invoke(finishedQuest);
     }
