@@ -38,7 +38,7 @@ public class QuestNPCInteraction : MonoBehaviour
     [TextArea(2, 4)]
     [SerializeField] private string[] completedQuestLines;
 
-    [Tooltip("Shown when the player talks to this NPC before the quest has started (e.g. before talking to the NPC that starts it). Ignored on the NPC that starts the quest.")]
+    [Tooltip("Shown when the player talks to this NPC before the quest is available: either the NPC that starts it hasn't been talked to yet, or (on an NPC that starts a quest) the prerequisite quests aren't finished.")]
     [TextArea(2, 4)]
     [SerializeField] private string[] questNotStartedLines;
 
@@ -123,11 +123,15 @@ public class QuestNPCInteraction : MonoBehaviour
             // can advance the quest and change the active objective.
             string[] linesToShow = ChooseLines();
 
+            // "Not available yet" lines don't count as the first real
+            // conversation, so the normal lines still play later.
+            bool isBlockedDialogue = linesToShow == questNotStartedLines;
+
             // Run your existing quest and inventory logic.
             Interact();
 
             // Show the dialogue for this NPC.
-            StartDialogue(linesToShow);
+            StartDialogue(linesToShow, !isBlockedDialogue);
         }
     }
 
@@ -160,6 +164,14 @@ public class QuestNPCInteraction : MonoBehaviour
             return completedQuestLines;
 
         QuestData quest = manager.ActiveQuest;
+
+        // This NPC starts a quest, but the quests before it aren't finished.
+        if (startsQuest &&
+            !manager.IsQuestCompleted(questID) &&
+            !(quest != null && quest.questID == questID) &&
+            !manager.ArePrerequisitesMet(questID) &&
+            questNotStartedLines != null && questNotStartedLines.Length > 0)
+            return questNotStartedLines;
 
         // The quest hasn't started yet (player skipped the NPC that starts it).
         if (!startsQuest &&
@@ -228,7 +240,7 @@ public class QuestNPCInteraction : MonoBehaviour
         return dialogueLines;
     }
 
-    private void StartDialogue(string[] lines)
+    private void StartDialogue(string[] lines, bool countsAsConversation = true)
     {
         if (requiresAlingElenaInteraction)
         {
@@ -253,7 +265,10 @@ public class QuestNPCInteraction : MonoBehaviour
         currentDialogueIndex = 0;
         dialogueActive = true;
         IsInDialogue = true;
-        hasTalkedBefore = true;
+
+        if (countsAsConversation)
+            hasTalkedBefore = true;
+
         dialoguePanel.SetActive(true);
 
         ShowCurrentDialogue();

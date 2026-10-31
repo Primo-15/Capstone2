@@ -321,6 +321,24 @@ public class QuestManager : MonoBehaviour
         OnQuestCompleted?.Invoke(finishedQuest);
     }
 
+    // True if every prerequisite of this quest has been completed.
+    public bool ArePrerequisitesMet(string questID)
+    {
+        if (!questDatabase.TryGetValue(questID, out QuestData quest))
+            return true;
+
+        if (quest.prerequisiteQuestIDs == null)
+            return true;
+
+        foreach (string prerequisiteID in quest.prerequisiteQuestIDs)
+        {
+            if (!completedQuestIDs.Contains(prerequisiteID))
+                return false;
+        }
+
+        return true;
+    }
+
     public bool IsQuestCompleted(string questID)
     {
         return completedQuestIDs.Contains(questID);
