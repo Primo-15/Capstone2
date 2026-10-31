@@ -50,6 +50,10 @@ public class QuestNPCInteraction : MonoBehaviour
     [TextArea(2, 4)]
     [SerializeField] private string[] inProgressLines;
 
+    [Tooltip("Shown whenever the player talks to this NPC again after the first conversation, if no quest-specific lines apply. Example: 'You can go to Rosa now.'")]
+    [TextArea(2, 4)]
+    [SerializeField] private string[] repeatLines;
+
     // True while ANY NPC dialogue is open. The player movement script
     // checks this to block movement until the dialogue is finished.
     public static bool IsInDialogue { get; private set; }
@@ -74,6 +78,7 @@ public class QuestNPCInteraction : MonoBehaviour
     [SerializeField] private string requiredItemID;
 
     private bool hasGivenReward;
+    private bool hasTalkedBefore;
     private Animator animator;
 
     private void Start()
@@ -147,7 +152,7 @@ public class QuestNPCInteraction : MonoBehaviour
 
         // No quest on this NPC (or no manager): always the default lines.
         if (manager == null || string.IsNullOrWhiteSpace(questID))
-            return dialogueLines;
+            return GetDefaultOrRepeatLines();
 
         // The quest is already finished.
         if (manager.IsQuestCompleted(questID) &&
@@ -209,7 +214,17 @@ public class QuestNPCInteraction : MonoBehaviour
                 return inProgressLines;
         }
 
-        // Nothing special applies, so use the default lines.
+        // Nothing special applies, so use the default (or repeat) lines.
+        return GetDefaultOrRepeatLines();
+    }
+
+    // First conversation: the normal lines. Every conversation after
+    // that: the repeat lines (if any were written in the Inspector).
+    private string[] GetDefaultOrRepeatLines()
+    {
+        if (hasTalkedBefore && repeatLines != null && repeatLines.Length > 0)
+            return repeatLines;
+
         return dialogueLines;
     }
 
@@ -238,6 +253,7 @@ public class QuestNPCInteraction : MonoBehaviour
         currentDialogueIndex = 0;
         dialogueActive = true;
         IsInDialogue = true;
+        hasTalkedBefore = true;
         dialoguePanel.SetActive(true);
 
         ShowCurrentDialogue();
@@ -311,7 +327,11 @@ public class QuestNPCInteraction : MonoBehaviour
         if (manager.ActiveQuest == null ||
             manager.ActiveQuest.questID != questID)
         {
-            Debug.Log($"{npcName}: I have nothing for you right now.");
+            Debug.Log(
+                $"{npcName}: I have nothing for you right now. " +
+                $"(my questID = '{questID}', active quest = " +
+                $"'{(manager.ActiveQuest != null ? manager.ActiveQuest.questID : "none")}')"
+            );
             return;
         }
 

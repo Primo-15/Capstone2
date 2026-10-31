@@ -783,13 +783,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 45c66df4b9b64134480ab2ed768510a4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::QuestNPCInteraction
-  npcName: NPC
+  npcName: Rosa
   interactionRange: 3
   interactionKey: 101
   player: {fileID: 1906787215}
-  dialoguePanel: {fileID: 0}
-  dialogueText: {fileID: 0}
-  dialogueLines: []
+  dialoguePanel: {fileID: 908204254}
+  dialogueText: {fileID: 933889127}
+  dialogueLines:
+  - oh hi Isay
+  - 'sure grab a basket there and i''ll help you pick up the fruits '
   finishedBuyingLines: []
   objectiveDialogues: []
   missingItemLines: []
@@ -797,6 +799,8 @@ MonoBehaviour:
   questNotStartedLines: []
   alreadyReceivedLines: []
   inProgressLines: []
+  repeatLines:
+  - we need the basket
   questID: main_quest_02
   startsQuest: 0
   objectiveID: Talk_to_Rosa
@@ -2743,6 +2747,7 @@ MonoBehaviour:
   alreadyReceivedLines:
   - You can bring that to your mother, Isay.
   inProgressLines: []
+  repeatLines: []
   questID: main_quest_01
   startsQuest: 0
   objectiveID: obtain_the_gulay
@@ -4112,20 +4117,29 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 45c66df4b9b64134480ab2ed768510a4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::QuestNPCInteraction
-  npcName: NPC
+  npcName: Mang Rodolfo
   interactionRange: 3
   interactionKey: 101
   player: {fileID: 1906787215}
-  dialoguePanel: {fileID: 0}
-  dialogueText: {fileID: 0}
-  dialogueLines: []
+  dialoguePanel: {fileID: 908204254}
+  dialogueText: {fileID: 933889127}
+  dialogueLines:
+  - Hello Isay
+  - can you talk to Rosa
+  - she's gonna help you pick up some friuts
   finishedBuyingLines: []
-  objectiveDialogues: []
+  objectiveDialogues:
+  - objectiveID: Talk_to_Mang_Rodolfo
+    lines:
+    - you can go to Rosa
   missingItemLines: []
   completedQuestLines: []
-  questNotStartedLines: []
+  questNotStartedLines:
+  - Not now isay i'm working
   alreadyReceivedLines: []
   inProgressLines: []
+  repeatLines:
+  - you can go to Rosa
   questID: main_quest_02
   startsQuest: 1
   objectiveID: Talk_to_Mang_Rodolfo
@@ -5223,6 +5237,7 @@ MonoBehaviour:
   questNotStartedLines: []
   alreadyReceivedLines: []
   inProgressLines: []
+  repeatLines: []
   questID: main_quest_01
   startsQuest: 1
   objectiveID: talk_to_Inay
@@ -5506,6 +5521,7 @@ MonoBehaviour:
   questNotStartedLines: []
   alreadyReceivedLines: []
   inProgressLines: []
+  repeatLines: []
   questID: main_quest_02
   startsQuest: 0
   objectiveID: Find_a_basket
