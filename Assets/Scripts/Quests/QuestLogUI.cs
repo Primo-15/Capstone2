@@ -1,4 +1,3 @@
-
 using System.Collections.Generic;
 using System.Text;
 using TMPro;
@@ -22,6 +21,15 @@ public class QuestLogUI : MonoBehaviour
     [SerializeField] private TMP_Text questDetailsDescriptionText;
     [SerializeField] private TMP_Text questDetailsStatusText;
     [SerializeField] private TMP_Text questDetailsObjectiveText;
+
+    [Tooltip("Optional. Assign the Scroll View so it jumps back to the top only when a different quest is selected.")]
+    [SerializeField] private ScrollRect detailsScrollRect;
+
+    [Tooltip("How far one mouse wheel notch scrolls the quest details.")]
+    [SerializeField] private float wheelScrollPixels = 60f;
+
+    [Tooltip("Scroll speed when holding the Up/Down arrow keys.")]
+    [SerializeField] private float arrowScrollPixelsPerSecond = 400f;
 
     [Header("Controls")]
     [SerializeField] private KeyCode toggleKey = KeyCode.J;
@@ -65,6 +73,13 @@ public class QuestLogUI : MonoBehaviour
 
         isSubscribed = true;
 
+        if (detailsScrollRect != null)
+        {
+            // The script handles wheel scrolling, so the built-in one is turned off.
+            // Dragging the scrollbar still works.
+            detailsScrollRect.scrollSensitivity = 0f;
+        }
+
         questLogTitleText.text = "QUEST LOG";
         questLogHintText.text = "Press J to close";
         questListTitleText.text = "AVAILABLE QUESTS";
@@ -103,6 +118,52 @@ public class QuestLogUI : MonoBehaviour
                 Cursor.visible = false;
             }
         }
+
+        if (questLogPanel.activeSelf)
+        {
+            HandleScrollInput();
+        }
+    }
+
+    private void HandleScrollInput()
+    {
+        if (detailsScrollRect == null ||
+            detailsScrollRect.content == null ||
+            detailsScrollRect.viewport == null)
+        {
+            return;
+        }
+
+        float scrollableHeight =
+            detailsScrollRect.content.rect.height -
+            detailsScrollRect.viewport.rect.height;
+
+        if (scrollableHeight <= 0f)
+        {
+            return;
+        }
+
+        float pixels = Input.mouseScrollDelta.y * wheelScrollPixels;
+
+        if (Input.GetKey(KeyCode.UpArrow))
+        {
+            pixels += arrowScrollPixelsPerSecond * Time.unscaledDeltaTime;
+        }
+
+        if (Input.GetKey(KeyCode.DownArrow))
+        {
+            pixels -= arrowScrollPixelsPerSecond * Time.unscaledDeltaTime;
+        }
+
+        if (Mathf.Approximately(pixels, 0f))
+        {
+            return;
+        }
+
+        detailsScrollRect.verticalNormalizedPosition = Mathf.Clamp01(
+            detailsScrollRect.verticalNormalizedPosition +
+            pixels / scrollableHeight
+        );
     }
 
     private void OnDestroy()
@@ -296,6 +357,8 @@ public class QuestLogUI : MonoBehaviour
             return;
         }
 
+        bool isNewSelection = selectedQuestID != quest.questID;
+
         selectedQuestID = quest.questID;
 
         questDetailsTitleText.text = quest.questTitle;
@@ -305,27 +368,35 @@ public class QuestLogUI : MonoBehaviour
         UpdateQuestObjectives(quest);
 
         HighlightSelectedButton();
+
+        // Jump back to the top only when a different quest is picked,
+        // so the scroll position is kept when the log refreshes.
+        if (isNewSelection && detailsScrollRect != null)
+        {
+            Canvas.ForceUpdateCanvases();
+            detailsScrollRect.verticalNormalizedPosition = 1f;
+        }
     }
 
     private void UpdateQuestStatus(QuestData quest)
     {
         if (questManager.IsQuestCompleted(quest.questID))
         {
-            questDetailsStatusText.text = "Status: COMPLETED";
+            questDetailsStatusText.text = "Status: Completed";
             questDetailsStatusText.color =
                 new Color(0.35f, 0.9f, 0.55f);
         }
         else if (questManager.ActiveQuest != null &&
                  questManager.ActiveQuest.questID == quest.questID)
         {
-            questDetailsStatusText.text = "Status: IN PROGRESS";
+            questDetailsStatusText.text = "Status: In Progress";
             questDetailsStatusText.color =
                 new Color(1f, 0.82f, 0.3f);
         }
         else if (!ArePrerequisitesMet(quest))
         {
             questDetailsStatusText.text =
-                "Status: LOCKED\nComplete the required quests first.";
+                "Status: Locked\n\nComplete the required quests first.";
 
             questDetailsStatusText.color =
                 new Color(1f, 0.55f, 0.45f);
@@ -333,14 +404,14 @@ public class QuestLogUI : MonoBehaviour
         else if (questManager.ActiveQuest != null)
         {
             questDetailsStatusText.text =
-                "Status: AVAILABLE\nFinish your current quest before starting this one.";
+                "Status: Available\n\nFinish your current quest before starting this one.";
 
             questDetailsStatusText.color = Color.white;
         }
         else
         {
             questDetailsStatusText.text =
-                "Status: AVAILABLE\nTalk to the quest giver to begin.";
+                "Status: Available\n\nTalk to the quest giver to begin.";
 
             questDetailsStatusText.color = Color.white;
         }

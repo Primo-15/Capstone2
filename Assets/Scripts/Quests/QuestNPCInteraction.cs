@@ -77,6 +77,9 @@ public class QuestNPCInteraction : MonoBehaviour
     [SerializeField] private string rewardItemID;
     [SerializeField] private string requiredItemID;
 
+    [Tooltip("Tick this to stop this NPC from showing Repeat Lines (or the first-conversation lines) once the delivery objective is done.")]
+    [SerializeField] private bool noRepeatAfterDelivery;
+
     private bool hasGivenReward;
     private bool hasTalkedBefore;
     private Animator animator;
@@ -234,10 +237,43 @@ public class QuestNPCInteraction : MonoBehaviour
     // that: the repeat lines (if any were written in the Inspector).
     private string[] GetDefaultOrRepeatLines()
     {
+        // After the delivery objective is done, this NPC has nothing
+        // more to say unless a specific line matches (no repeat lines).
+        if (noRepeatAfterDelivery && HasPassedDeliveryObjective())
+            return null;
+
         if (hasTalkedBefore && repeatLines != null && repeatLines.Length > 0)
             return repeatLines;
 
         return dialogueLines;
+    }
+
+    // True once the quest has moved past this NPC's delivery objective,
+    // or the whole quest is finished.
+    private bool HasPassedDeliveryObjective()
+    {
+        QuestManager manager = QuestManager.Instance;
+
+        if (manager == null ||
+            string.IsNullOrWhiteSpace(questID) ||
+            string.IsNullOrWhiteSpace(deliveryObjectiveID))
+            return false;
+
+        if (manager.IsQuestCompleted(questID))
+            return true;
+
+        QuestData quest = manager.ActiveQuest;
+
+        if (quest == null || quest.questID != questID)
+            return false;
+
+        for (int i = 0; i < quest.objectives.Length; i++)
+        {
+            if (quest.objectives[i].objectiveID == deliveryObjectiveID)
+                return manager.CurrentObjectiveIndex > i;
+        }
+
+        return false;
     }
 
     private void StartDialogue(string[] lines, bool countsAsConversation = true)
@@ -314,6 +350,21 @@ public class QuestNPCInteraction : MonoBehaviour
             dialoguePanel.SetActive(false);
     }
 
+    // True if the active quest's current objective has this ID.
+    private bool IsCurrentObjective(QuestManager manager, string id)
+    {
+        if (string.IsNullOrWhiteSpace(id))
+            return false;
+
+        QuestData quest = manager.ActiveQuest;
+
+        if (quest == null ||
+            manager.CurrentObjectiveIndex >= quest.objectives.Length)
+            return false;
+
+        return quest.objectives[manager.CurrentObjectiveIndex].objectiveID == id;
+    }
+
     private void Interact()
     {
         QuestManager manager = QuestManager.Instance;
@@ -379,7 +430,10 @@ public class QuestNPCInteraction : MonoBehaviour
         }
 
         // CASE 3: Receive a required item.
-        if (!string.IsNullOrWhiteSpace(requiredItemID))
+        // Only applies at the delivery step, so the NPC can still be
+        // talked to normally (CASE 4) before that.
+        if (!string.IsNullOrWhiteSpace(requiredItemID) &&
+            IsCurrentObjective(manager, deliveryObjectiveID))
         {
             InventoryManager inventory = InventoryManager.Instance;
 
@@ -393,14 +447,6 @@ public class QuestNPCInteraction : MonoBehaviour
             {
                 Debug.Log(
                     $"{npcName}: You need to bring me {requiredItemID}."
-                );
-                return;
-            }
-
-            if (string.IsNullOrWhiteSpace(deliveryObjectiveID))
-            {
-                Debug.LogWarning(
-                    $"{npcName}: Delivery Objective ID is not configured."
                 );
                 return;
             }
