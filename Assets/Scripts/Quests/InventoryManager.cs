@@ -1,9 +1,12 @@
-
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class InventoryManager : MonoBehaviour
 {
     public static InventoryManager Instance { get; private set; }
+
+    [Tooltip("If ticked, whatever the player is carrying is dropped whenever a new scene loads (e.g. a basket left over from M1 won't block the knife in M2).")]
+    [SerializeField] private bool clearOnSceneLoad = true;
 
     // The single item currently carried by the player.
     private string currentItemID;
@@ -23,6 +26,26 @@ public class InventoryManager : MonoBehaviour
 
         Instance = this;
         DontDestroyOnLoad(gameObject);
+    }
+
+    private void OnEnable()
+    {
+        SceneManager.sceneLoaded += OnSceneLoaded;
+    }
+
+    private void OnDisable()
+    {
+        SceneManager.sceneLoaded -= OnSceneLoaded;
+    }
+
+    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        // Ignore duplicate copies that are about to be destroyed.
+        if (Instance != this)
+            return;
+
+        if (clearOnSceneLoad)
+            ClearInventory();
     }
 
     public bool HasItem(string itemID)

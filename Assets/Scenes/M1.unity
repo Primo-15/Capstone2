@@ -674,6 +674,8 @@ MonoBehaviour:
   requiredItemForDialogue: 
   rewardItemID: 
   requiredItemID: 
+  noRepeatAfterDelivery: 0
+  objectToHideOnReward: {fileID: 0}
 --- !u!1 &161806914
 GameObject:
   m_ObjectHideFlags: 0
@@ -2081,6 +2083,8 @@ MonoBehaviour:
   requiredItemForDialogue: 
   rewardItemID: sangkap
   requiredItemID: 
+  noRepeatAfterDelivery: 0
+  objectToHideOnReward: {fileID: 0}
 --- !u!136 &431744724
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -3473,6 +3477,8 @@ MonoBehaviour:
   requiredItemForDialogue: 
   rewardItemID: 
   requiredItemID: 
+  noRepeatAfterDelivery: 0
+  objectToHideOnReward: {fileID: 0}
 --- !u!1 &825292036
 GameObject:
   m_ObjectHideFlags: 0
@@ -3686,6 +3692,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e96222a7c7dbfb949ba832b633c06aa2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::InventoryManager
+  clearOnSceneLoad: 1
 --- !u!4 &848065209
 Transform:
   m_ObjectHideFlags: 0
@@ -4575,6 +4582,8 @@ MonoBehaviour:
   requiredItemForDialogue: sangkap
   rewardItemID: 
   requiredItemID: sangkap
+  noRepeatAfterDelivery: 0
+  objectToHideOnReward: {fileID: 0}
 --- !u!1 &1041985534
 GameObject:
   m_ObjectHideFlags: 0
@@ -4683,15 +4692,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8873423528879453588, guid: 0f05cd044f2ba594aac7c872e3d7096f, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0.24099922
+      value: -39.205
       objectReference: {fileID: 0}
     - target: {fileID: 8873423528879453588, guid: 0f05cd044f2ba594aac7c872e3d7096f, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -0.7399998
+      value: -1.476
       objectReference: {fileID: 0}
     - target: {fileID: 8873423528879453588, guid: 0f05cd044f2ba594aac7c872e3d7096f, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 0.019999504
+      value: -4.29
       objectReference: {fileID: 0}
     - target: {fileID: 8873423528879453588, guid: 0f05cd044f2ba594aac7c872e3d7096f, type: 3}
       propertyPath: m_LocalRotation.w
@@ -4918,6 +4927,8 @@ MonoBehaviour:
   requiredItemForDialogue: 
   rewardItemID: basket
   requiredItemID: 
+  noRepeatAfterDelivery: 0
+  objectToHideOnReward: {fileID: 0}
 --- !u!114 &1109381997
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5111,7 +5122,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::QuestLocationTransition
   finalQuestID: main_quest_02
   finalObjectiveID: Meet_Rosa
-  nextSceneName: M3
+  nextSceneName: M2
   playerTag: Player
 --- !u!1001 &1315277879
 PrefabInstance:

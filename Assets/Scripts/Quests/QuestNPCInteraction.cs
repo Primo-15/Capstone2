@@ -80,6 +80,9 @@ public class QuestNPCInteraction : MonoBehaviour
     [Tooltip("Tick this to stop this NPC from showing Repeat Lines (or the first-conversation lines) once the delivery objective is done.")]
     [SerializeField] private bool noRepeatAfterDelivery;
 
+    [Tooltip("Optional. A CHILD model (e.g. the knife on the ground) to hide once this NPC gives the reward item. Don't assign this NPC's own object.")]
+    [SerializeField] private GameObject objectToHideOnReward;
+
     private bool hasGivenReward;
     private bool hasTalkedBefore;
     private Animator animator;
@@ -418,10 +421,25 @@ public class QuestNPCInteraction : MonoBehaviour
                 return;
             }
 
+            // The inventory only holds one item. If something else is
+            // still in it, don't complete the objective for nothing.
+            if (inventory.HasItemInInventory)
+            {
+                Debug.LogWarning(
+                    $"{npcName}: Can't give {rewardItemID}. " +
+                    $"The inventory is occupied by {inventory.CurrentItemID}."
+                );
+                return;
+            }
+
             if (manager.CompleteCurrentObjective(objectiveID))
             {
                 inventory.AddItem(rewardItemID);
                 hasGivenReward = true;
+
+                // Hide the model lying in the world (e.g. the knife).
+                if (objectToHideOnReward != null)
+                    objectToHideOnReward.SetActive(false);
 
                 Debug.Log($"{npcName}: Here is the {rewardItemID}!");
             }
