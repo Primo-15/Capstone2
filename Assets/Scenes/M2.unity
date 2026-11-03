@@ -784,6 +784,7 @@ MonoBehaviour:
   requiredItemID: 
   noRepeatAfterDelivery: 0
   objectToHideOnReward: {fileID: 0}
+  cutsceneAfterFirstTalk: {fileID: 0}
 --- !u!1 &78125159
 GameObject:
   m_ObjectHideFlags: 0
@@ -2349,7 +2350,7 @@ MonoBehaviour:
   dialogueText: {fileID: 593985481}
   dialogueLines:
   - Isay I need your help
-  - I lost my son Pepe
+  - I lost my son Watot
   - I don't know where to find him
   finishedBuyingLines: []
   objectiveDialogues: []
@@ -2359,7 +2360,7 @@ MonoBehaviour:
   alreadyReceivedLines: []
   inProgressLines: []
   repeatLines:
-  - Find my Pepe, please Isay.
+  - Please find Watot
   questID: main_quest_03
   startsQuest: 0
   objectiveID: Talk_to_Aling_Elena
@@ -2371,6 +2372,7 @@ MonoBehaviour:
   requiredItemID: 
   noRepeatAfterDelivery: 0
   objectToHideOnReward: {fileID: 0}
+  cutsceneAfterFirstTalk: {fileID: 0}
 --- !u!136 &431744724
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -4129,6 +4131,7 @@ MonoBehaviour:
   requiredItemID: 
   noRepeatAfterDelivery: 0
   objectToHideOnReward: {fileID: 0}
+  cutsceneAfterFirstTalk: {fileID: 0}
 --- !u!1 &825292036
 GameObject:
   m_ObjectHideFlags: 0
@@ -5175,6 +5178,7 @@ MonoBehaviour:
   requiredItemID: sangkap
   noRepeatAfterDelivery: 0
   objectToHideOnReward: {fileID: 0}
+  cutsceneAfterFirstTalk: {fileID: 0}
 --- !u!1 &1041985534
 GameObject:
   m_ObjectHideFlags: 0
@@ -5397,6 +5401,7 @@ GameObject:
   - component: {fileID: 1109381994}
   - component: {fileID: 1109381993}
   - component: {fileID: 1109381996}
+  - component: {fileID: 1109381997}
   m_Layer: 0
   m_Name: Cylinder
   m_TagString: Untagged
@@ -5512,7 +5517,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 45c66df4b9b64134480ab2ed768510a4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::QuestNPCInteraction
-  npcName: Shelf
+  npcName: Knife
   interactionRange: 3
   interactionKey: 101
   player: {fileID: 1906787215}
@@ -5538,6 +5543,38 @@ MonoBehaviour:
   requiredItemID: 
   noRepeatAfterDelivery: 0
   objectToHideOnReward: {fileID: 1655333845}
+  cutsceneAfterFirstTalk: {fileID: 0}
+--- !u!114 &1109381997
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1109381991}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ea54a8163d38cb441a968d6f9ae28dde, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::QuestPointerTarget
+  questID: 
+  objectiveIDs: []
+  markBeforeQuestStarts: 0
+  pointAt: {fileID: 0}
+  autoHeight: 1
+  heightAbove: 2.2
+  color: {r: 1, g: 0.85, b: 0.2, a: 1}
+  label: 
+  completeWhenReached: 0
+  reachRadius: 3
+  requiredItemID: 
+  removeItem: 1
+  pressKeyToComplete: 0
+  key: 101
+  prompt: {fileID: 0}
+  showWhenDone: []
+  onCompleted:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!1001 &1116250962
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -6059,7 +6096,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 45c66df4b9b64134480ab2ed768510a4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::QuestNPCInteraction
-  npcName: Pepe
+  npcName: Watot
   interactionRange: 3
   interactionKey: 101
   player: {fileID: 1906787215}
@@ -6092,6 +6129,7 @@ MonoBehaviour:
   requiredItemID: Knife
   noRepeatAfterDelivery: 1
   objectToHideOnReward: {fileID: 0}
+  cutsceneAfterFirstTalk: {fileID: 0}
 --- !u!1001 &1330570890
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -14497,7 +14535,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::QuestLocationTransition
   finalQuestID: main_quest_03
   finalObjectiveID: Find_the_Escape_Route
-  nextSceneName: Map_03
+  nextSceneName: M3
   playerTag: Player
 --- !u!65 &2091389371
 BoxCollider:

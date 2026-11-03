@@ -83,6 +83,16 @@ public class QuestNPCInteraction : MonoBehaviour
     [Tooltip("Optional. A CHILD model (e.g. the knife on the ground) to hide once this NPC gives the reward item. Don't assign this NPC's own object.")]
     [SerializeField] private GameObject objectToHideOnReward;
 
+    [Header("Cutscene")]
+    [Tooltip("Optional. Plays once, right after the FIRST conversation with this NPC finishes.")]
+    [SerializeField] private CameraPanCutscene cutsceneAfterFirstTalk;
+
+    private bool cutscenePlayed;
+    private bool playCutsceneAfterDialogue;
+
+    // True while a cutscene is running, so nobody can start a dialogue.
+    private static bool cutsceneActive;
+
     private bool hasGivenReward;
     private bool hasTalkedBefore;
     private Animator animator;
@@ -98,6 +108,10 @@ public class QuestNPCInteraction : MonoBehaviour
     private void Update()
     {
         if (player == null)
+            return;
+
+        // No talking while a cutscene is playing.
+        if (cutsceneActive)
             return;
 
         float distance = Vector3.Distance(
@@ -305,6 +319,14 @@ public class QuestNPCInteraction : MonoBehaviour
         dialogueActive = true;
         IsInDialogue = true;
 
+        // The very first real conversation queues the cutscene. It
+        // plays when the player finishes reading all the lines.
+        if (countsAsConversation &&
+            !hasTalkedBefore &&
+            !cutscenePlayed &&
+            cutsceneAfterFirstTalk != null)
+            playCutsceneAfterDialogue = true;
+
         if (countsAsConversation)
             hasTalkedBefore = true;
 
@@ -321,6 +343,7 @@ public class QuestNPCInteraction : MonoBehaviour
             currentDialogueIndex >= currentLines.Length)
         {
             EndDialogue();
+            TryPlayCutscene();
             return;
         }
 
@@ -342,6 +365,26 @@ public class QuestNPCInteraction : MonoBehaviour
             dialogueActive = false;
             IsInDialogue = false;
         }
+    }
+
+    private void TryPlayCutscene()
+    {
+        if (!playCutsceneAfterDialogue || cutsceneAfterFirstTalk == null)
+            return;
+
+        playCutsceneAfterDialogue = false;
+        cutscenePlayed = true;
+
+        cutsceneActive = true;
+        IsInDialogue = true; // keeps the player from moving
+
+        cutsceneAfterFirstTalk.Play(OnCutsceneFinished);
+    }
+
+    private void OnCutsceneFinished()
+    {
+        cutsceneActive = false;
+        IsInDialogue = false;
     }
 
     private void EndDialogue()

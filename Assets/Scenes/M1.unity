@@ -621,6 +621,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 1606037529433101695, guid: 4a2f1fe7e36596049b29f061a77ff748, type: 3}
       insertIndex: -1
       addedObject: {fileID: 63957816}
+    - targetCorrespondingSourceObject: {fileID: 1606037529433101695, guid: 4a2f1fe7e36596049b29f061a77ff748, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 63957817}
   m_SourcePrefab: {fileID: 100100000, guid: 4a2f1fe7e36596049b29f061a77ff748, type: 3}
 --- !u!4 &63957814 stripped
 Transform:
@@ -676,6 +679,43 @@ MonoBehaviour:
   requiredItemID: 
   noRepeatAfterDelivery: 0
   objectToHideOnReward: {fileID: 0}
+  cutsceneAfterFirstTalk: {fileID: 0}
+--- !u!114 &63957817
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 63957815}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ea54a8163d38cb441a968d6f9ae28dde, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::QuestPointerTarget
+  questID: 
+  objectiveIDs: []
+  markBeforeQuestStarts: 0
+  pointAt: {fileID: 0}
+  autoHeight: 1
+  heightAbove: 2.2
+  color: {r: 0.8490566, g: 0.17221431, b: 0.806499, a: 1}
+  label: 
+  completeWhenReached: 0
+  reachRadius: 3
+  requiredItemID: 
+  removeItem: 1
+  pressKeyToComplete: 0
+  key: 101
+  prompt: {fileID: 0}
+  showWhenDone: []
+  onCompleted:
+    m_PersistentCalls:
+      m_Calls: []
+--- !u!20 &143663824 stripped
+Camera:
+  m_CorrespondingSourceObject: {fileID: 8944336655422409496, guid: f6d148d888ffbf54b9afe9936dfaec1f, type: 3}
+  m_PrefabInstance: {fileID: 2082424474}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &161806914
 GameObject:
   m_ObjectHideFlags: 0
@@ -1193,6 +1233,37 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: a1a802ecaf6775746bb2a929fb554ad8, type: 3}
+--- !u!1 &390791629
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 390791630}
+  m_Layer: 0
+  m_Name: CamPoint_End
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &390791630
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 390791629}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0.06100882, y: 0.8825101, z: -0.11864449, w: 0.4509738}
+  m_LocalPosition: {x: 56.094, y: 2.384, z: -9.963}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 986578942}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &410087039
 GameObject:
   m_ObjectHideFlags: 0
@@ -2085,6 +2156,7 @@ MonoBehaviour:
   requiredItemID: 
   noRepeatAfterDelivery: 0
   objectToHideOnReward: {fileID: 0}
+  cutsceneAfterFirstTalk: {fileID: 0}
 --- !u!136 &431744724
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -3479,6 +3551,7 @@ MonoBehaviour:
   requiredItemID: 
   noRepeatAfterDelivery: 0
   objectToHideOnReward: {fileID: 0}
+  cutsceneAfterFirstTalk: {fileID: 1072502746}
 --- !u!1 &825292036
 GameObject:
   m_ObjectHideFlags: 0
@@ -4450,6 +4523,40 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 942726186}
   m_CullTransparentMesh: 1
+--- !u!1 &986578941
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 986578942}
+  m_Layer: 0
+  m_Name: CameraScenes
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &986578942
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 986578941}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 13.03183, y: 0.96103, z: 19.2907}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 1072502747}
+  - {fileID: 2120407616}
+  - {fileID: 390791630}
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &991388265
 GameObject:
   m_ObjectHideFlags: 0
@@ -4584,6 +4691,7 @@ MonoBehaviour:
   requiredItemID: sangkap
   noRepeatAfterDelivery: 0
   objectToHideOnReward: {fileID: 0}
+  cutsceneAfterFirstTalk: {fileID: 0}
 --- !u!1 &1041985534
 GameObject:
   m_ObjectHideFlags: 0
@@ -4692,15 +4800,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8873423528879453588, guid: 0f05cd044f2ba594aac7c872e3d7096f, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -39.205
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8873423528879453588, guid: 0f05cd044f2ba594aac7c872e3d7096f, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -1.476
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8873423528879453588, guid: 0f05cd044f2ba594aac7c872e3d7096f, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -4.29
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8873423528879453588, guid: 0f05cd044f2ba594aac7c872e3d7096f, type: 3}
       propertyPath: m_LocalRotation.w
@@ -4735,6 +4843,62 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 0f05cd044f2ba594aac7c872e3d7096f, type: 3}
+--- !u!1 &1072502745
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1072502747}
+  - component: {fileID: 1072502746}
+  m_Layer: 0
+  m_Name: RosaPanCutscene
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1072502746
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1072502745}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cc4d92ccd1165cf4e9b4ed8f132260d6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CameraPanCutscene
+  startTarget: {fileID: 799779797}
+  endTarget: {fileID: 63957814}
+  cam: {fileID: 143663824}
+  startCameraPoint: {fileID: 2120407616}
+  endCameraPoint: {fileID: 390791630}
+  blendInTime: 1
+  panTime: 4
+  holdTime: 3
+  blendOutTime: 1
+  sideDistance: 3
+  height: 2.5
+  lookHeight: 1.4
+--- !u!4 &1072502747
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1072502745}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 13.609301, y: 3.38936, z: 0.29610825}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 986578942}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1073345420
 GameObject:
   m_ObjectHideFlags: 0
@@ -4788,6 +4952,7 @@ GameObject:
   - component: {fileID: 1109381993}
   - component: {fileID: 1109381996}
   - component: {fileID: 1109381997}
+  - component: {fileID: 1109381998}
   m_Layer: 0
   m_Name: Cylinder
   m_TagString: Untagged
@@ -4804,7 +4969,7 @@ Transform:
   m_GameObject: {fileID: 1109381991}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 51.18, y: 1.4549997, z: -16.17}
+  m_LocalPosition: {x: 11.995, y: -0.012, z: -20.416}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -4929,6 +5094,7 @@ MonoBehaviour:
   requiredItemID: 
   noRepeatAfterDelivery: 0
   objectToHideOnReward: {fileID: 0}
+  cutsceneAfterFirstTalk: {fileID: 0}
 --- !u!114 &1109381997
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4952,6 +5118,38 @@ MonoBehaviour:
   carryPosition: {x: 0, y: 0.3, z: 0}
   carryEulerAngles: {x: 90, y: 0, z: 0}
   carryScale: {x: 13, y: 13, z: 13}
+--- !u!114 &1109381998
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1109381991}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ea54a8163d38cb441a968d6f9ae28dde, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::QuestPointerTarget
+  questID: 
+  objectiveIDs:
+  - Find_a_basket
+  markBeforeQuestStarts: 0
+  pointAt: {fileID: 0}
+  autoHeight: 1
+  heightAbove: 2.2
+  color: {r: 1, g: 0.85, b: 0.2, a: 1}
+  label: 
+  completeWhenReached: 0
+  reachRadius: 3
+  requiredItemID: 
+  removeItem: 1
+  pressKeyToComplete: 0
+  key: 101
+  prompt: {fileID: 0}
+  showWhenDone: []
+  onCompleted:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!1001 &1223479000
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -5065,6 +5263,7 @@ GameObject:
   - component: {fileID: 1311714210}
   - component: {fileID: 1311714211}
   - component: {fileID: 1311714212}
+  - component: {fileID: 1311714213}
   m_Layer: 0
   m_Name: Burol Destination
   m_TagString: Untagged
@@ -5080,13 +5279,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1311714209}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 36.7, y: 4.16, z: -0.1}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalRotation: {x: -0, y: -0.12020204, z: -0, w: 0.99274945}
+  m_LocalPosition: {x: 36.7, y: 4.16, z: 0.62000084}
+  m_LocalScale: {x: 1, y: 1, z: 1.8673}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1073345421}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: -13.808, z: 0}
 --- !u!65 &1311714211
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -5124,6 +5323,38 @@ MonoBehaviour:
   finalObjectiveID: Meet_Rosa
   nextSceneName: M2
   playerTag: Player
+--- !u!114 &1311714213
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1311714209}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ea54a8163d38cb441a968d6f9ae28dde, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::QuestPointerTarget
+  questID: main_quest_02
+  objectiveIDs:
+  - Meet_Rosa
+  markBeforeQuestStarts: 0
+  pointAt: {fileID: 0}
+  autoHeight: 1
+  heightAbove: 2.2
+  color: {r: 1, g: 0, b: 0, a: 1}
+  label: 
+  completeWhenReached: 1
+  reachRadius: 3
+  requiredItemID: basket
+  removeItem: 1
+  pressKeyToComplete: 0
+  key: 101
+  prompt: {fileID: 0}
+  showWhenDone: []
+  onCompleted:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!1001 &1315277879
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -8364,6 +8595,37 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &2120407615
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2120407616}
+  m_Layer: 0
+  m_Name: CamPoint_Start
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2120407616
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2120407615}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0.12299789, y: 0.0018575664, z: 0.00017220741, w: 0.9924052}
+  m_LocalPosition: {x: 16.866999, y: 3.706584, z: -2.4558258}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 986578942}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2124695296
 GameObject:
   m_ObjectHideFlags: 0
@@ -8581,3 +8843,4 @@ SceneRoots:
   - {fileID: 991388267}
   - {fileID: 161806918}
   - {fileID: 4862887924350607504}
+  - {fileID: 986578942}
