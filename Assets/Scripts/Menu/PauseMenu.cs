@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 #if ENABLE_INPUT_SYSTEM
@@ -8,6 +9,7 @@ public class PauseMenu : MonoBehaviour
 {
     [SerializeField] private GameObject pausePanel;
     [SerializeField] private string mainMenuScene = "Main Menu";
+    [SerializeField] private string followCameraName = "PlayerFollowCamera";
     [SerializeField] private Behaviour[] disableWhilePaused;
 
     private bool isPaused;
@@ -15,10 +17,49 @@ public class PauseMenu : MonoBehaviour
     private void Start()
     {
         pausePanel.SetActive(false);
+        AutoFindGameplayInput();
+    }
+
+    // Finds the follow camera in whatever scene this prefab is dropped into.
+    // Anything you assigned by hand in the Inspector is kept.
+    private void AutoFindGameplayInput()
+    {
+        var list = new List<Behaviour>();
+        if (disableWhilePaused != null)
+            list.AddRange(disableWhilePaused);
+
+        GameObject cam = GameObject.Find(followCameraName);
+
+        if (cam == null)
+        {
+            Debug.LogWarning("PauseMenu: could not find '" + followCameraName +
+                "' in this scene, so the camera won't freeze while paused.", this);
+        }
+        else
+        {
+            foreach (Behaviour b in cam.GetComponents<Behaviour>())
+            {
+                if (b != null &&
+                    b.GetType().Name == "CinemachineCamera" &&
+                    !list.Contains(b))
+                {
+                    list.Add(b);
+                }
+            }
+        }
+
+        disableWhilePaused = list.ToArray();
     }
 
     private void Update()
     {
+        // Don't allow pausing during game over or a quick time event.
+        if (GameOverScreen.Instance != null && GameOverScreen.Instance.IsGameOver)
+            return;
+
+        if (QuickTimeEvent.Instance != null && QuickTimeEvent.Instance.IsActive)
+            return;
+
         if (EscapePressed())
         {
             if (isPaused) Resume();

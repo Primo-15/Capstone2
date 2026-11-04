@@ -29,6 +29,7 @@ public class GuardPatrol : MonoBehaviour
     [SerializeField] private float chaseSpeed = 4f;
     [SerializeField] private float loseSightTime = 3f;
     [SerializeField] private float catchDistance = 1.5f;
+    [SerializeField] private float stunDuration = 3f;
 
     [Header("Debug")]
     [SerializeField] private bool showDebugMessages = true;
@@ -41,6 +42,9 @@ public class GuardPatrol : MonoBehaviour
     private float patrolSpeed;
     private bool chasing;
     private bool playerDetected;
+    private bool caught;
+    private bool stunned;
+    private float stunTimer;
     private float lostTimer;
 
     public bool PlayerDetected => playerDetected;
@@ -91,6 +95,19 @@ public class GuardPatrol : MonoBehaviour
 
     private void Update()
     {
+        if (caught)
+            return; // quick time event or game over is running
+
+        if (stunned)
+        {
+            stunTimer -= Time.deltaTime;
+
+            if (stunTimer <= 0f)
+                EndStun();
+
+            return;
+        }
+
         UpdateVision();
 
         if (playerDetected)
@@ -128,12 +145,7 @@ public class GuardPatrol : MonoBehaviour
 
         if (distance <= catchDistance)
         {
-            agent.ResetPath();
-
-            if (showDebugMessages)
-                Debug.Log("GUARD CAUGHT THE PLAYER!", this);
-
-            // Put your "caught" logic here (game over, reload, dialogue...)
+            CatchPlayer();
             return;
         }
 
@@ -155,6 +167,63 @@ public class GuardPatrol : MonoBehaviour
 
         if (showDebugMessages)
             Debug.Log("Guard lost the player, returning to patrol.", this);
+    }
+
+    // ---------------- CATCH / QUICK TIME EVENT ----------------
+
+    private void CatchPlayer()
+    {
+        agent.ResetPath();
+
+        if (showDebugMessages)
+            Debug.Log("GUARD CAUGHT THE PLAYER!", this);
+
+        if (QuickTimeEvent.Instance != null)
+        {
+            // Only lock this guard if the event actually started.
+            if (QuickTimeEvent.Instance.StartEvent(OnPlayerDodged, TriggerGameOver))
+                caught = true;
+
+            return;
+        }
+
+        // No quick time event in this scene: straight to game over.
+        TriggerGameOver();
+    }
+
+    private void TriggerGameOver()
+    {
+        caught = true;
+
+        if (GameOverScreen.Instance != null)
+            GameOverScreen.Instance.Show();
+        else
+            Debug.LogWarning(
+                "GuardPatrol: No GameOverScreen found in this scene.", this);
+    }
+
+    private void OnPlayerDodged()
+    {
+        caught = false;
+        chasing = false;
+        playerDetected = false;
+
+        stunned = true;
+        stunTimer = stunDuration;
+
+        agent.ResetPath();
+        agent.isStopped = true;
+        agent.speed = patrolSpeed;
+
+        if (showDebugMessages)
+            Debug.Log("Player dodged! Guard stunned.", this);
+    }
+
+    private void EndStun()
+    {
+        stunned = false;
+        agent.isStopped = false;
+        StopChasing(); // heads back to the nearer patrol point
     }
 
     // ---------------- PATROL ----------------

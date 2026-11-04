@@ -38,6 +38,11 @@ public class QuestManager : MonoBehaviour
     {
         if (Instance != null && Instance != this)
         {
+            // This scene's copy is about to be destroyed. Give its quests to
+            // the surviving manager first, so quests that only exist in this
+            // scene (like main_quest_04 in M3) are still found.
+            Instance.MergeQuests(availableQuests);
+
             Destroy(gameObject);
             return;
         }
@@ -78,6 +83,51 @@ public class QuestManager : MonoBehaviour
 
             questDatabase.Add(quest.questID, quest);
         }
+    }
+
+    // Adds any quests this manager doesn't know yet. Called by a scene's own
+    // QuestManager copy right before it destroys itself.
+    public void MergeQuests(QuestData[] newQuests)
+    {
+        if (newQuests == null)
+            return;
+
+        var list = new List<QuestData>(
+            availableQuests ?? new QuestData[0]);
+
+        bool changed = false;
+
+        foreach (QuestData quest in newQuests)
+        {
+            if (quest == null || string.IsNullOrWhiteSpace(quest.questID))
+                continue;
+
+            if (list.Contains(quest))
+                continue;
+
+            // Skip quests whose ID we already have from another asset.
+            bool idExists = false;
+            foreach (QuestData existing in list)
+            {
+                if (existing != null && existing.questID == quest.questID)
+                {
+                    idExists = true;
+                    break;
+                }
+            }
+
+            if (idExists)
+                continue;
+
+            list.Add(quest);
+            changed = true;
+        }
+
+        if (!changed)
+            return;
+
+        availableQuests = list.ToArray();
+        BuildQuestDatabase();
     }
 
     // ---------- Save / Load / Reset ----------

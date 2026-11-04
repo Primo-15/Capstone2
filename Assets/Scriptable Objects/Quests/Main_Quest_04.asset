@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fd4d367f16334cd49b4c963507fd0e73, type: 3}
+  m_Name: Main_Quest_04
+  m_EditorClassIdentifier: Assembly-CSharp::QuestData
+  questID: main_quest_04
+  questTitle: Find help
+  questDescription: Reach the end of the palayan without getting caught
+  questType: 0
+  prerequisiteQuestIDs: []
+  objectives:
+  - objectiveID: reach_startdestination
+    description: Go to Palayan
+    objectiveType: 2
+    requiredAmount: 1
+  - objectiveID: End_of_Palayan
+    description: Reach the End
+    objectiveType: 2
+    requiredAmount: 1
