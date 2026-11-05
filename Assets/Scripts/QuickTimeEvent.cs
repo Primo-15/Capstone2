@@ -4,19 +4,25 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using UnityEngine.Video;
+using UnityEngine.SceneManagement;
+
+
 #if ENABLE_INPUT_SYSTEM
 using UnityEngine.InputSystem;
 #endif
 
 public class QuickTimeEvent : MonoBehaviour
 {
+    public VideoPlayer storyVideoPlayer;
+    public GameObject storyVideoCanvas;
     public static QuickTimeEvent Instance { get; private set; }
 
     [Header("UI")]
     [SerializeField] private GameObject qtePanel;
     [SerializeField] private TMP_Text keyText;
     [SerializeField] private TMP_Text messageText;   // optional
-    [SerializeField] private Image timerBar;         // optional, Image Type = Simple, shrinks to center
+    [SerializeField] private Image timerBar;         // optional, Image Type = Filled, Radial 360
 
     [Header("Settings")]
     [SerializeField] private float timeLimit = 1.5f;
@@ -43,6 +49,8 @@ public class QuickTimeEvent : MonoBehaviour
     private void Start()
     {
         qtePanel.SetActive(false);
+        if (storyVideoCanvas != null)
+            storyVideoCanvas.SetActive(false);
         AutoFindGameplayInput();
     }
 
@@ -85,30 +93,47 @@ public class QuickTimeEvent : MonoBehaviour
 #endif
     }
 
-    private void SetTimerScale(float t)
+    // Radial pie: 1 = full circle, 0 = empty.
+    private void SetTimerFill(float t)
     {
         if (timerBar != null)
-            timerBar.rectTransform.localScale = new Vector3(t, t, 1f);
+            timerBar.fillAmount = Mathf.Clamp01(t);
     }
 
-    // Returns false if an event is already running.
+    // Returns false if an event is already running or the player has no stamina.
     public bool StartEvent(Action onSuccess, Action onFail)
     {
         if (IsActive) return false;
+        if (!PlayerStats.UseStamina()) return false;   // each QTE costs 1 stamina
+
         StartCoroutine(Run(onSuccess, onFail));
         return true;
     }
+    private void OnVideoFinished(VideoPlayer vp)
+    {
+        storyVideoPlayer.loopPointReached -= OnVideoFinished;
 
+    }
     private IEnumerator Run(Action onSuccess, Action onFail)
     {
         IsActive = true;
 
         int target = UnityEngine.Random.Range(0, keys.Length);
+        storyVideoPlayer.Stop();
+        storyVideoPlayer.loopPointReached -= OnVideoFinished;
+        storyVideoPlayer.loopPointReached += OnVideoFinished;
+
+        storyVideoPlayer.Play();
+        if (storyVideoCanvas != null)
+            storyVideoCanvas.SetActive(true);
 
         qtePanel.SetActive(true);
         keyText.text = labels[target];
         if (messageText != null) messageText.text = "Press the key to dodge!";
-        SetTimerScale(1f);
+
+        if (timerBar != null)
+            timerBar.rectTransform.localScale = Vector3.one;   // undo the old shrinking effect
+        SetTimerFill(1f);
 
         Time.timeScale = 0f;
         SetGameplayInput(false);
@@ -124,8 +149,8 @@ public class QuickTimeEvent : MonoBehaviour
             timer -= Time.unscaledDeltaTime;
             elapsed += Time.unscaledDeltaTime;
 
-            // Circle shrinks from the outside toward the center.
-            SetTimerScale(Mathf.Clamp01(timer / timeLimit));
+            // The pie drains as time runs out.
+            SetTimerFill(timer / timeLimit);
 
             if (elapsed >= inputDelay)
             {
@@ -148,6 +173,10 @@ public class QuickTimeEvent : MonoBehaviour
         yield return new WaitForSecondsRealtime(resultDisplayTime);
 
         qtePanel.SetActive(false);
+        if (storyVideoCanvas != null)
+            storyVideoCanvas.SetActive(false);
+        if (storyVideoPlayer != null)
+            storyVideoPlayer.Stop();
         IsActive = false;
 
         if (success)

@@ -106,6 +106,9 @@ namespace StarterAssets
         private StarterAssetsInputs _input;
         private GameObject _mainCamera;
 
+        // MUD: slows the player while inside a MudZone
+        private PlayerSpeedModifier _speedModifier;
+
         private const float _threshold = 0.01f;
 
         private bool _hasAnimator;
@@ -135,10 +138,11 @@ namespace StarterAssets
         private void Start()
         {
             _cinemachineTargetYaw = CinemachineCameraTarget.transform.rotation.eulerAngles.y;
-            
+
             _hasAnimator = TryGetComponent(out _animator);
             _controller = GetComponent<CharacterController>();
             _input = GetComponent<StarterAssetsInputs>();
+            _speedModifier = GetComponent<PlayerSpeedModifier>(); // MUD
 #if ENABLE_INPUT_SYSTEM
             _playerInput = GetComponent<PlayerInput>();
 #else
@@ -217,6 +221,9 @@ namespace StarterAssets
         {
             // set target speed based on move speed, sprint speed and if sprint is pressed
             float targetSpeed = _input.sprint ? SprintSpeed : MoveSpeed;
+
+            // MUD: slow down while standing in mud (1 = normal speed)
+            if (_speedModifier != null) targetSpeed *= _speedModifier.Multiplier;
 
             // a simplistic acceleration and deceleration designed to be easy to remove, replace, or iterate upon
 

@@ -107,6 +107,8 @@ public class PauseMenu : MonoBehaviour
 
     public void GoToMainMenu()
     {
+        PlayerStats.ResetAll();   // fresh hearts and stamina for the next run
+
         Time.timeScale = 1f; // important, otherwise the main menu loads frozen
         SetGameplayInput(true);
         SceneManager.LoadScene(mainMenuScene);

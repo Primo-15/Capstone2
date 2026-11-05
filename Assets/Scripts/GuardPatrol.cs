@@ -173,12 +173,16 @@ public class GuardPatrol : MonoBehaviour
 
     private void CatchPlayer()
     {
+        // Another guard's quick time event is already running; wait for it.
+        if (QuickTimeEvent.Instance != null && QuickTimeEvent.Instance.IsActive)
+            return;
+
         agent.ResetPath();
 
         if (showDebugMessages)
             Debug.Log("GUARD CAUGHT THE PLAYER!", this);
 
-        if (QuickTimeEvent.Instance != null)
+        if (QuickTimeEvent.Instance != null && PlayerStats.HasStamina)
         {
             // Only lock this guard if the event actually started.
             if (QuickTimeEvent.Instance.StartEvent(OnPlayerDodged, TriggerGameOver))
@@ -187,7 +191,10 @@ public class GuardPatrol : MonoBehaviour
             return;
         }
 
-        // No quick time event in this scene: straight to game over.
+        // No stamina (or no quick time event in this scene): straight to game over.
+        if (showDebugMessages && !PlayerStats.HasStamina)
+            Debug.Log("No stamina left, no dodge chance.", this);
+
         TriggerGameOver();
     }
 
