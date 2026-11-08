@@ -100,6 +100,8 @@ public class QuestNPCInteraction : MonoBehaviour
     private void Start()
     {
         animator = GetComponent<Animator>();
+        if (animator == null)
+            animator = GetComponentInChildren<Animator>();
 
         if (dialoguePanel != null)
             dialoguePanel.SetActive(false);

@@ -10,12 +10,12 @@ Material:
   m_Name: NPC Hair Black
   m_Shader: {fileID: 4800000, guid: 933532a4fcc9baf4fa0491de14d08ed7, type: 3}
   m_Parent: {fileID: 2100000, guid: dd75dd533383906448e35ee3eea8cc7e, type: 2}
-  m_ModifiedSerializedProperties: 0
+  m_ModifiedSerializedProperties: 8
   m_ValidKeywords: []
   m_InvalidKeywords: []
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
-  m_DoubleSidedGI: 0
+  m_DoubleSidedGI: 1
   m_CustomRenderQueue: -1
   stringTagMap:
     RenderType: Opaque
@@ -27,6 +27,7 @@ Material:
     m_TexEnvs: []
     m_Ints: []
     m_Floats:
+    - _Cull: 0
     - _Smoothness: 0.2
     m_Colors:
     - _BaseColor: {r: 0.074819036, g: 0.06763972, b: 0.0754717, a: 1}
