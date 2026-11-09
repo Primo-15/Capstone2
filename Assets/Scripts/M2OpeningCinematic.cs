@@ -7,19 +7,40 @@ using StarterAssets;
 
 public class M2OpeningCinematic : MonoBehaviour
 {
+    // One entry per soldier. Drag your own empty GameObjects into Start Point / End Point.
+    [Serializable]
+    public class SoldierActor
+    {
+        [Tooltip("The soldier object. Auto-found by name if left empty.")]
+        public Transform soldier;
+        [Tooltip("Where the soldier begins. If empty, the soldier's current position is used.")]
+        public Transform startPoint;
+        [Tooltip("Where the soldier walks to (and stands at the end).")]
+        public Transform endPoint;
+
+        [NonSerialized] public Animator anim;
+        [NonSerialized] public Vector3 pos;
+        [NonSerialized] public Quaternion rot;
+        [NonSerialized] public bool controlled;
+        [NonSerialized] public bool arrived;
+    }
+
     [Header("Camera Views (Auto-found from CameraViews if empty)")]
     [SerializeField] private Transform view1;
     [SerializeField] private Transform view2;
 
-    [Header("Targets (Auto-found if empty)")]
-    [SerializeField] private Transform infantry1;
-    [SerializeField] private Transform infantry2;
+    [Header("Soldiers (drag your own Start / End points here)")]
+    [SerializeField] private SoldierActor soldier1 = new SoldierActor();
+    [SerializeField] private SoldierActor soldier2 = new SoldierActor();
     [SerializeField] private Transform inayTarget;
-    [SerializeField] private Transform soldiersRoot;
 
-    [Header("Target Local Positions (under Soldiers root)")]
-    [SerializeField] private Vector3 inf1TargetLocal = new Vector3(-4.07f, 0f, -0.48f);
-    [SerializeField] private Vector3 inf2TargetLocal = new Vector3(-1.99f, 0f, 1.34f);
+    [Header("Soldier Behaviour")]
+    [Tooltip("ON: soldiers turn to face Inay at the end. OFF: they use the End Point's rotation.")]
+    [SerializeField] private bool faceInayAtEnd = true;
+    [Tooltip("ON: soldiers stay exactly at their End Point after the cinematic (nothing can move them).")]
+    [SerializeField] private bool keepSoldiersAtEndAfterCinematic = true;
+    [Tooltip("Name of the bool parameter in the soldiers' Animator.")]
+    [SerializeField] private string movingParameter = "IsMoving";
 
     [Header("Timings & Speeds")]
     [SerializeField] private float fadeDuration = 1.0f;
@@ -28,9 +49,6 @@ public class M2OpeningCinematic : MonoBehaviour
     [SerializeField] private float view2HoldAfterArrival = 2.0f;
     [SerializeField] private bool allowSkip = true;
 
-    [Header("Debug")]
-    [SerializeField] private bool hasCompleted = false;
-
     private Camera cam;
     private Behaviour cinemachineBrain;
     private ThirdPersonController playerController;
@@ -38,16 +56,11 @@ public class M2OpeningCinematic : MonoBehaviour
 
     private CanvasGroup fadeCanvasGroup;
     private GameObject fadeCanvasObj;
+    private bool hasCompleted = false;
     private bool isSkipped = false;
     private Coroutine cinematicCoroutine;
 
-    // Final-pose hold (keeps soldiers in place once they arrive, even if another script tries to move them)
-    private bool hold1, hold2;
-    private Vector3 holdPos1, holdPos2;
-    private Quaternion holdRot1, holdRot2;
-
-    // NOTE: The old [RuntimeInitializeOnLoadMethod] auto-bootstrapper was removed.
-    // Add this component to an empty GameObject in the M2 scene instead.
+    // Add this component to an empty GameObject in the M2 scene.
 
     private void Awake()
     {
@@ -67,40 +80,28 @@ public class M2OpeningCinematic : MonoBehaviour
             if (Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.Escape) || Input.GetKeyDown(KeyCode.Return))
             {
                 isSkipped = true;
-                if (cinematicCoroutine != null)
-                {
-                    StopCoroutine(cinematicCoroutine);
-                }
+                StopAllCoroutines(); // also stops the nested walk/fade coroutines
                 StartCoroutine(SkipCinematicSequence());
             }
         }
     }
 
+    // Runs after the Animator and every other script, so the soldiers always end up exactly where we put them.
     private void LateUpdate()
     {
-        HoldSoldier(infantry1, hold1, holdPos1, ref holdRot1);
-        HoldSoldier(infantry2, hold2, holdPos2, ref holdRot2);
+        ApplyActor(soldier1);
+        ApplyActor(soldier2);
     }
 
-    private void HoldSoldier(Transform s, bool hold, Vector3 pos, ref Quaternion rot)
+    private void ApplyActor(SoldierActor a)
     {
-        if (!hold || s == null) return;
-
-        // Debug: tells us if something else moved the soldier after he arrived
-        if ((s.position - pos).sqrMagnitude > 0.0025f)
-            Debug.LogWarning($"{s.name} was moved off its final spot to {s.position} (frame {Time.frameCount})", s);
-
-        if (inayTarget != null)
-        {
-            Vector3 d = inayTarget.position - pos;
-            d.y = 0f;
-            if (d.sqrMagnitude > 0.001f)
-                rot = Quaternion.Slerp(rot, Quaternion.LookRotation(d.normalized, Vector3.up), Time.deltaTime * 7f);
-        }
-
-        s.SetPositionAndRotation(pos, rot);
+        if (a == null || !a.controlled || a.soldier == null) return;
+        a.soldier.SetPositionAndRotation(a.pos, a.rot);
     }
 
+    // ------------------------------------------------------------------
+    // Setup
+    // ------------------------------------------------------------------
     private void FindSceneReferences()
     {
         // 1. Camera
@@ -125,7 +126,6 @@ public class M2OpeningCinematic : MonoBehaviour
             GameObject cv = GameObject.Find("CameraViews");
             if (cv == null)
             {
-                // Try finding any root with CameraViews
                 foreach (GameObject root in SceneManager.GetActiveScene().GetRootGameObjects())
                 {
                     if (root.name.IndexOf("CameraView", StringComparison.OrdinalIgnoreCase) >= 0)
@@ -159,7 +159,7 @@ public class M2OpeningCinematic : MonoBehaviour
             }
         }
 
-        // Fallbacks if CameraViews is not in scene
+        // Fallbacks if CameraViews is not in the scene
         if (view1 == null)
         {
             GameObject fallback1 = new GameObject("Fallback_View1");
@@ -176,42 +176,21 @@ public class M2OpeningCinematic : MonoBehaviour
             view2 = fallback2.transform;
         }
 
-        // 3. Soldiers root & Infantries
-        if (soldiersRoot == null)
-        {
-            GameObject sObj = GameObject.Find("Soldiers");
-            if (sObj != null) soldiersRoot = sObj.transform;
-        }
+        // 3. Soldiers
+        if (soldier1.soldier == null) soldier1.soldier = FindTransformByName("Infantry1");
+        if (soldier2.soldier == null) soldier2.soldier = FindTransformByName("Infantry1 (1)");
 
-        if (infantry1 == null)
-        {
-            if (soldiersRoot != null)
-                infantry1 = soldiersRoot.Find("Infantry1");
-            if (infantry1 == null)
-            {
-                GameObject i1 = GameObject.Find("Infantry1");
-                if (i1 != null) infantry1 = i1.transform;
-            }
-        }
+        if (soldier1.soldier != null) soldier1.anim = soldier1.soldier.GetComponentInChildren<Animator>();
+        if (soldier2.soldier != null) soldier2.anim = soldier2.soldier.GetComponentInChildren<Animator>();
 
-        if (infantry2 == null)
-        {
-            if (soldiersRoot != null)
-                infantry2 = soldiersRoot.Find("Infantry1 (1)");
-            if (infantry2 == null)
-            {
-                GameObject i2 = GameObject.Find("Infantry1 (1)");
-                if (i2 != null) infantry2 = i2.transform;
-            }
-        }
+        if (soldier1.soldier != null && soldier1.endPoint == null)
+            Debug.LogWarning("M2OpeningCinematic: Soldier 1 has no End Point assigned, so he will not walk.", this);
+        if (soldier2.soldier != null && soldier2.endPoint == null)
+            Debug.LogWarning("M2OpeningCinematic: Soldier 2 has no End Point assigned, so he will not walk.", this);
 
         // 4. Inay
         if (inayTarget == null)
-        {
-            GameObject inayObj = GameObject.Find("Inay");
-            if (inayObj != null)
-                inayTarget = inayObj.transform;
-        }
+            inayTarget = FindTransformByName("Inay");
 
         // 5. Player
         playerController = FindFirstObjectByType<ThirdPersonController>();
@@ -219,6 +198,12 @@ public class M2OpeningCinematic : MonoBehaviour
         {
             playerInputs = playerController.GetComponent<StarterAssetsInputs>();
         }
+    }
+
+    private Transform FindTransformByName(string objectName)
+    {
+        GameObject go = GameObject.Find(objectName);
+        return go != null ? go.transform : null;
     }
 
     private void CreateFadeCanvas()
@@ -248,11 +233,15 @@ public class M2OpeningCinematic : MonoBehaviour
         rt.anchoredPosition = Vector2.zero;
     }
 
+    // ------------------------------------------------------------------
+    // Main sequence
+    // ------------------------------------------------------------------
     private IEnumerator PlayCinematicSequence()
     {
-        // 1. Prepare player and infantries
+        // 1. Prepare player and soldiers
         LockPlayer(true);
-        PrepareInfantries();
+        PrepareActor(soldier1);
+        PrepareActor(soldier2);
 
         if (cinemachineBrain != null)
             cinemachineBrain.enabled = false;
@@ -263,16 +252,14 @@ public class M2OpeningCinematic : MonoBehaviour
             cam.transform.SetPositionAndRotation(view1.position, view1.rotation);
         }
 
-        // Small initial pause to let scene settle
+        // Small initial pause to let the scene settle
         yield return new WaitForSeconds(0.2f);
 
         // ==========================================
-        // VIEW 1: Village Scenic Camera View
+        // VIEW 1: Village scenic camera view
         // ==========================================
-        // Fade in View 1
         yield return StartCoroutine(FadeRoutine(1f, 0f, fadeDuration));
 
-        // Pan camera slowly across View 1
         Vector3 v1StartPos = view1.position;
         Quaternion v1StartRot = view1.rotation;
         Vector3 v1EndPos = v1StartPos + view1.right * 2.5f + view1.forward * 0.5f;
@@ -293,28 +280,23 @@ public class M2OpeningCinematic : MonoBehaviour
             yield return null;
         }
 
-        // Fade out View 1
         yield return StartCoroutine(FadeRoutine(0f, 1f, fadeDuration));
 
         // ==========================================
-        // VIEW 2: Infantries walking to Mother Inay
+        // VIEW 2: Soldiers walk to Mother Inay
         // ==========================================
-        // Snap camera to View 2 while screen is black
         if (cam != null && view2 != null)
         {
             cam.transform.SetPositionAndRotation(view2.position, view2.rotation);
         }
 
-        // Fade in View 2
         yield return StartCoroutine(FadeRoutine(1f, 0f, fadeDuration));
 
-        // Start soldier walk sequence in View 2
-        yield return StartCoroutine(AnimateSoldiersAndCameraView2());
+        yield return StartCoroutine(WalkSoldiersAndPushCamera());
 
-        // Hold shot on confrontation with Inay
+        // Hold shot on the confrontation with Inay
         yield return new WaitForSeconds(view2HoldAfterArrival);
 
-        // Fade out View 2
         yield return StartCoroutine(FadeRoutine(0f, 1f, fadeDuration));
 
         // ==========================================
@@ -322,49 +304,85 @@ public class M2OpeningCinematic : MonoBehaviour
         // ==========================================
         EndCinematic();
 
-        // Fade in to gameplay
         yield return StartCoroutine(FadeRoutine(1f, 0f, fadeDuration));
 
-        // Clean up fade canvas
         if (fadeCanvasObj != null)
         {
             Destroy(fadeCanvasObj);
         }
     }
 
-    private IEnumerator AnimateSoldiersAndCameraView2()
+    // ------------------------------------------------------------------
+    // Soldier movement
+    // ------------------------------------------------------------------
+    private bool HasWalk(SoldierActor a)
     {
-        // Calculate destination world coordinates
-        Vector3 targetWorld1 = infantry1 != null ? GetTargetWorldPosition(infantry1, inf1TargetLocal) : Vector3.zero;
-        Vector3 targetWorld2 = infantry2 != null ? GetTargetWorldPosition(infantry2, inf2TargetLocal) : Vector3.zero;
+        return a != null && a.soldier != null && a.endPoint != null;
+    }
 
-        Animator anim1 = infantry1 != null ? infantry1.GetComponentInChildren<Animator>() : null;
-        Animator anim2 = infantry2 != null ? infantry2.GetComponentInChildren<Animator>() : null;
+    private void PrepareActor(SoldierActor a)
+    {
+        if (a == null || a.soldier == null) return;
 
-        if (anim1 != null)
+        // Stop anything that could steer the soldier on its own
+        foreach (var agent in a.soldier.GetComponentsInChildren<UnityEngine.AI.NavMeshAgent>(true))
+            agent.enabled = false;
+
+        foreach (var mb in a.soldier.GetComponentsInChildren<MonoBehaviour>(true))
         {
-            anim1.applyRootMotion = false;
-            anim1.SetBool("IsMoving", true);
+            if (mb != null && mb.GetType().Name == "GuardPatrol")
+            {
+                mb.StopAllCoroutines();
+                mb.enabled = false;
+            }
         }
-        if (anim2 != null)
+
+        if (a.anim != null)
+            a.anim.applyRootMotion = false;
+
+        // Start pose
+        a.pos = a.soldier.position;
+        a.rot = a.soldier.rotation;
+        if (a.startPoint != null)
         {
-            anim2.applyRootMotion = false;
-            anim2.SetBool("IsMoving", true);
+            a.pos = a.startPoint.position;
+            a.rot = a.startPoint.rotation;
         }
 
-        Vector3 camStartPos = view2 != null ? view2.position : cam.transform.position;
-        Quaternion camStartRot = view2 != null ? view2.rotation : cam.transform.rotation;
-        Vector3 camEndPos = camStartPos + (view2 != null ? (view2.forward * 0.9f + view2.up * 0.15f) : Vector3.zero);
+        a.soldier.SetPositionAndRotation(a.pos, a.rot);
+        a.arrived = !HasWalk(a);
+        a.controlled = true; // from now on LateUpdate keeps this soldier exactly where we say
+    }
 
-        bool inf1Arrived = (infantry1 == null);
-        bool inf2Arrived = (infantry2 == null);
+    private IEnumerator WalkSoldiersAndPushCamera()
+    {
+        SetMoving(soldier1, HasWalk(soldier1));
+        SetMoving(soldier2, HasWalk(soldier2));
+
+        Vector3 camStartPos = cam != null ? cam.transform.position : Vector3.zero;
+        Quaternion camStartRot = cam != null ? cam.transform.rotation : Quaternion.identity;
+        Vector3 camEndPos = camStartPos;
+        if (view2 != null)
+        {
+            camStartPos = view2.position;
+            camStartRot = view2.rotation;
+            camEndPos = camStartPos + (view2.forward * 0.9f + view2.up * 0.15f);
+        }
+
         float timeWalking = 0f;
 
-        while (!inf1Arrived || !inf2Arrived)
+        while (!soldier1.arrived || !soldier2.arrived)
         {
             timeWalking += Time.deltaTime;
 
-            // Camera subtle cinematic push
+            // Safety: never get stuck if a soldier can't reach the point
+            if (timeWalking > 60f)
+            {
+                SnapSoldiersToFinal();
+                break;
+            }
+
+            // Subtle cinematic push
             if (cam != null)
             {
                 float camT = Mathf.Clamp01(timeWalking / 6f);
@@ -373,120 +391,101 @@ public class M2OpeningCinematic : MonoBehaviour
                 cam.transform.rotation = camStartRot;
             }
 
-            // Move Infantry 1
-            if (!inf1Arrived && infantry1 != null)
-            {
-                Vector3 toTarget = targetWorld1 - infantry1.position;
-                toTarget.y = 0f;
-                float dist = toTarget.magnitude;
-
-                if (dist > 0.08f)
-                {
-                    Quaternion targetRot = Quaternion.LookRotation(toTarget.normalized, Vector3.up);
-                    infantry1.rotation = Quaternion.Slerp(infantry1.rotation, targetRot, Time.deltaTime * 6f);
-                    infantry1.position = Vector3.MoveTowards(infantry1.position, targetWorld1, infantryWalkSpeed * Time.deltaTime);
-                }
-                else
-                {
-                    infantry1.position = targetWorld1;
-                    inf1Arrived = true;
-                    holdPos1 = targetWorld1; holdRot1 = infantry1.rotation; hold1 = true;
-                    if (anim1 != null) anim1.SetBool("IsMoving", false);
-                }
-            }
-
-            // Move Infantry 2
-            if (!inf2Arrived && infantry2 != null)
-            {
-                Vector3 toTarget = targetWorld2 - infantry2.position;
-                toTarget.y = 0f;
-                float dist = toTarget.magnitude;
-
-                if (dist > 0.08f)
-                {
-                    Quaternion targetRot = Quaternion.LookRotation(toTarget.normalized, Vector3.up);
-                    infantry2.rotation = Quaternion.Slerp(infantry2.rotation, targetRot, Time.deltaTime * 6f);
-                    infantry2.position = Vector3.MoveTowards(infantry2.position, targetWorld2, infantryWalkSpeed * Time.deltaTime);
-                }
-                else
-                {
-                    infantry2.position = targetWorld2;
-                    inf2Arrived = true;
-                    holdPos2 = targetWorld2; holdRot2 = infantry2.rotation; hold2 = true;
-                    if (anim2 != null) anim2.SetBool("IsMoving", false);
-                }
-            }
-
-            // Continuously face Inay once arrived
-            FaceTarget(infantry1, inf1Arrived, inayTarget);
-            FaceTarget(infantry2, inf2Arrived, inayTarget);
+            StepActor(soldier1);
+            StepActor(soldier2);
 
             yield return null;
         }
 
-        // Both arrived, finalize facing Inay
+        // Both arrived: let them settle into their final facing
         float settleTimer = 0f;
         while (settleTimer < 0.6f)
         {
             settleTimer += Time.deltaTime;
-            FaceTarget(infantry1, true, inayTarget);
-            FaceTarget(infantry2, true, inayTarget);
+            FaceAtEnd(soldier1);
+            FaceAtEnd(soldier2);
             yield return null;
         }
     }
 
-    private void FaceTarget(Transform soldier, bool hasArrived, Transform target)
+    private void StepActor(SoldierActor a)
     {
-        if (!hasArrived || soldier == null || target == null)
+        if (!HasWalk(a)) return;
+
+        if (a.arrived)
+        {
+            FaceAtEnd(a);
             return;
-
-        Vector3 dir = target.position - soldier.position;
-        dir.y = 0f;
-        if (dir.sqrMagnitude > 0.001f)
-        {
-            Quaternion targetRot = Quaternion.LookRotation(dir.normalized, Vector3.up);
-            soldier.rotation = Quaternion.Slerp(soldier.rotation, targetRot, Time.deltaTime * 7f);
-        }
-    }
-
-    private Vector3 GetTargetWorldPosition(Transform soldier, Vector3 targetLocalXZ)
-    {
-        Transform parent = soldier.parent != null ? soldier.parent : soldiersRoot;
-        float currentLocalY = soldier.localPosition.y;
-        Vector3 localPos = new Vector3(targetLocalXZ.x, currentLocalY, targetLocalXZ.z);
-
-        if (parent != null)
-        {
-            return parent.TransformPoint(localPos);
         }
 
-        return new Vector3(targetLocalXZ.x, soldier.position.y, targetLocalXZ.z);
-    }
+        Vector3 target = a.endPoint.position;
+        Vector3 toTarget = target - a.pos;
 
-    private void PrepareInfantries()
-    {
-        // Disable GuardPatrol and NavMeshAgent without modifying GuardPatrol.cs
-        DisablePatrolAndAgent(infantry1);
-        DisablePatrolAndAgent(infantry2);
-    }
-
-    private void DisablePatrolAndAgent(Transform soldier)
-    {
-        if (soldier == null) return;
-
-        foreach (MonoBehaviour mb in soldier.GetComponents<MonoBehaviour>())
+        if (toTarget.magnitude > 0.05f)
         {
-            if (mb != null && mb.GetType().Name == "GuardPatrol")
+            Vector3 flat = toTarget;
+            flat.y = 0f;
+            if (flat.sqrMagnitude > 0.0001f)
             {
-                mb.enabled = false;
+                Quaternion lookRot = Quaternion.LookRotation(flat.normalized, Vector3.up);
+                a.rot = Quaternion.Slerp(a.rot, lookRot, Time.deltaTime * 6f);
+            }
+
+            a.pos = Vector3.MoveTowards(a.pos, target, infantryWalkSpeed * Time.deltaTime);
+        }
+        else
+        {
+            a.pos = target;
+            a.arrived = true;
+            SetMoving(a, false);
+        }
+    }
+
+    private Quaternion GetFinalRotation(SoldierActor a, out bool valid)
+    {
+        valid = true;
+
+        if (faceInayAtEnd && inayTarget != null)
+        {
+            Vector3 d = inayTarget.position - a.pos;
+            d.y = 0f;
+            if (d.sqrMagnitude > 0.001f)
+                return Quaternion.LookRotation(d.normalized, Vector3.up);
+        }
+
+        if (a.endPoint != null)
+            return a.endPoint.rotation;
+
+        valid = false;
+        return a.rot;
+    }
+
+    private void FaceAtEnd(SoldierActor a)
+    {
+        if (!HasWalk(a)) return;
+
+        bool valid;
+        Quaternion target = GetFinalRotation(a, out valid);
+        if (!valid) return;
+
+        a.rot = Quaternion.Slerp(a.rot, target, Time.deltaTime * 7f);
+    }
+
+    private void SetMoving(SoldierActor a, bool moving)
+    {
+        if (a == null || a.anim == null || string.IsNullOrEmpty(movingParameter)) return;
+        if (a.anim.runtimeAnimatorController == null) return;
+
+        foreach (AnimatorControllerParameter p in a.anim.parameters)
+        {
+            if (p.name == movingParameter && p.type == AnimatorControllerParameterType.Bool)
+            {
+                a.anim.SetBool(movingParameter, moving);
+                return;
             }
         }
 
-        var agent = soldier.GetComponent<UnityEngine.AI.NavMeshAgent>();
-        if (agent != null)
-        {
-            agent.enabled = false;
-        }
+        Debug.LogWarning("M2OpeningCinematic: Animator has no Bool parameter named '" + movingParameter + "'. Check the 'Moving Parameter' field.", this);
     }
 
     private void LockPlayer(bool locked)
@@ -525,6 +524,9 @@ public class M2OpeningCinematic : MonoBehaviour
         fadeCanvasGroup.blocksRaycasts = (to > 0.01f);
     }
 
+    // ------------------------------------------------------------------
+    // Skip / End
+    // ------------------------------------------------------------------
     private IEnumerator SkipCinematicSequence()
     {
         if (fadeCanvasGroup != null)
@@ -532,7 +534,6 @@ public class M2OpeningCinematic : MonoBehaviour
             yield return StartCoroutine(FadeRoutine(fadeCanvasGroup.alpha, 1f, 0.3f));
         }
 
-        // Snap infantries to target positions
         SnapSoldiersToFinal();
 
         EndCinematic();
@@ -549,38 +550,31 @@ public class M2OpeningCinematic : MonoBehaviour
 
     private void SnapSoldiersToFinal()
     {
-        if (infantry1 != null)
-        {
-            infantry1.position = GetTargetWorldPosition(infantry1, inf1TargetLocal);
-            Animator a1 = infantry1.GetComponentInChildren<Animator>();
-            if (a1 != null) a1.SetBool("IsMoving", false);
-            if (inayTarget != null)
-            {
-                Vector3 d = inayTarget.position - infantry1.position;
-                d.y = 0;
-                if (d.sqrMagnitude > 0.001f) infantry1.rotation = Quaternion.LookRotation(d.normalized, Vector3.up);
-            }
-        }
+        SnapActorToFinal(soldier1);
+        SnapActorToFinal(soldier2);
+    }
 
-        if (infantry2 != null)
-        {
-            infantry2.position = GetTargetWorldPosition(infantry2, inf2TargetLocal);
-            Animator a2 = infantry2.GetComponentInChildren<Animator>();
-            if (a2 != null) a2.SetBool("IsMoving", false);
-            if (inayTarget != null)
-            {
-                Vector3 d = inayTarget.position - infantry2.position;
-                d.y = 0;
-                if (d.sqrMagnitude > 0.001f) infantry2.rotation = Quaternion.LookRotation(d.normalized, Vector3.up);
-            }
-        }
+    private void SnapActorToFinal(SoldierActor a)
+    {
+        if (!HasWalk(a)) return;
+
+        a.pos = a.endPoint.position;
+
+        bool valid;
+        Quaternion finalRot = GetFinalRotation(a, out valid);
+        if (valid) a.rot = finalRot;
+
+        a.arrived = true;
+        SetMoving(a, false);
     }
 
     private void EndCinematic()
     {
         hasCompleted = true;
-        hold1 = false;
-        hold2 = false;
+
+        // Either keep the soldiers pinned at their end pose, or hand them back to the scene
+        soldier1.controlled = keepSoldiersAtEndAfterCinematic && soldier1.soldier != null;
+        soldier2.controlled = keepSoldiersAtEndAfterCinematic && soldier2.soldier != null;
 
         if (cinemachineBrain != null)
         {
@@ -596,5 +590,30 @@ public class M2OpeningCinematic : MonoBehaviour
         {
             EndCinematic();
         }
+    }
+
+    // ------------------------------------------------------------------
+    // Scene-view helper: shows Start / End points and the path between them
+    // ------------------------------------------------------------------
+    private void OnDrawGizmos()
+    {
+        DrawActorGizmo(soldier1, Color.cyan);
+        DrawActorGizmo(soldier2, Color.yellow);
+    }
+
+    private void DrawActorGizmo(SoldierActor a, Color color)
+    {
+        if (a == null) return;
+
+        Gizmos.color = color;
+
+        if (a.startPoint != null)
+            Gizmos.DrawWireSphere(a.startPoint.position, 0.25f);
+
+        if (a.endPoint != null)
+            Gizmos.DrawSphere(a.endPoint.position, 0.25f);
+
+        if (a.startPoint != null && a.endPoint != null)
+            Gizmos.DrawLine(a.startPoint.position, a.endPoint.position);
     }
 }

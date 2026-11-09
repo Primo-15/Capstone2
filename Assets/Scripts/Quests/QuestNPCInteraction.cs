@@ -11,6 +11,7 @@ public class ObjectiveDialogue
     public string[] lines;
 }
 
+
 public class QuestNPCInteraction : MonoBehaviour
 {
     [Header("NPC Settings")]
@@ -22,6 +23,14 @@ public class QuestNPCInteraction : MonoBehaviour
     [Header("Dialogue Settings")]
     [SerializeField] private GameObject dialoguePanel;
     [SerializeField] private TMP_Text dialogueText;
+
+    [Tooltip("Seconds the player must wait between E presses, so they can't spam through the dialogue.")]
+    [SerializeField] private float advanceCooldown = 0.5f;
+    private float nextAdvanceTime;
+
+    [Tooltip("Name shown when a line starts with [P].")]
+    [SerializeField] private string playerName = "You";
+    [SerializeField] private string playerNameColor = "#4DA6FF";
 
     [TextArea(2, 4)]
     [SerializeField] private string[] dialogueLines;
@@ -58,6 +67,9 @@ public class QuestNPCInteraction : MonoBehaviour
     // checks this to block movement until the dialogue is finished.
     public static bool IsInDialogue { get; private set; }
 
+    // Any line that starts with this is spoken by the player.
+    private const string PlayerPrefix = "[P]";
+
     private string[] currentLines;
     private int currentDialogueIndex;
     private bool dialogueActive;
@@ -86,6 +98,15 @@ public class QuestNPCInteraction : MonoBehaviour
     [Header("Cutscene")]
     [Tooltip("Optional. Plays once, right after the FIRST conversation with this NPC finishes.")]
     [SerializeField] private CameraPanCutscene cutsceneAfterFirstTalk;
+
+    [Header("Dialogue Cinematic")]
+    [Tooltip("Optional. Loops the cinematic camera shots while the conversation continues. Starts when the line below is shown and stops when the dialogue ends.")]
+    [SerializeField] private DialogueCinematic dialogueCinematic;
+
+    [Tooltip("Index of the line (in Dialogue Lines) that starts the cinematic. Element 12 = 12.")]
+    [SerializeField] private int cinematicStartLine = 12;
+
+    private bool cinematicRunning;
 
     private bool cutscenePlayed;
     private bool playCutsceneAfterDialogue;
@@ -131,6 +152,14 @@ public class QuestNPCInteraction : MonoBehaviour
 
         if (Input.GetKeyDown(interactionKey))
         {
+            // Ignore E presses that come too soon after the last one,
+            // so the player can't mash through the whole conversation.
+            // (unscaledTime keeps working even if the game is paused.)
+            if (Time.unscaledTime < nextAdvanceTime)
+                return;
+
+            nextAdvanceTime = Time.unscaledTime + advanceCooldown;
+
             // E advances the dialogue instead of repeating
             // the quest interaction.
             if (dialogueActive)
@@ -352,10 +381,58 @@ public class QuestNPCInteraction : MonoBehaviour
         ShowCurrentDialogue();
     }
 
+    // Shows the current line. A line that starts with [P] is spoken
+    // by the player; every other line is spoken by this NPC.
     private void ShowCurrentDialogue()
     {
-        dialogueText.text =
-            npcName + ":\n" + currentLines[currentDialogueIndex];
+        string line = currentLines[currentDialogueIndex].TrimStart();
+
+        bool isPlayerLine = line.StartsWith(
+            PlayerPrefix,
+            System.StringComparison.OrdinalIgnoreCase
+        );
+
+        if (isPlayerLine)
+        {
+            line = line.Substring(PlayerPrefix.Length).TrimStart();
+
+            dialogueText.text =
+                "<color=" + playerNameColor + ">" + playerName + ":</color>\n" + line;
+        }
+        else
+        {
+            dialogueText.text = npcName + ":\n" + line;
+        }
+
+        TryStartCinematic();
+    }
+
+    // Starts the looping cinematic when the trigger line is shown.
+    // Only applies to the main Dialogue Lines, not repeat/quest lines.
+    private void TryStartCinematic()
+    {
+        if (dialogueCinematic == null || cinematicRunning)
+            return;
+
+        if (currentLines != dialogueLines)
+            return;
+
+        if (currentDialogueIndex != cinematicStartLine)
+            return;
+
+        cinematicRunning = true;
+        dialogueCinematic.Begin();
+    }
+
+    private void StopCinematic()
+    {
+        if (!cinematicRunning)
+            return;
+
+        cinematicRunning = false;
+
+        if (dialogueCinematic != null && dialogueCinematic.isActiveAndEnabled)
+            dialogueCinematic.End();
     }
 
     private void OnDisable()
@@ -367,6 +444,8 @@ public class QuestNPCInteraction : MonoBehaviour
             dialogueActive = false;
             IsInDialogue = false;
         }
+
+        StopCinematic();
     }
 
     private void TryPlayCutscene()
@@ -393,6 +472,10 @@ public class QuestNPCInteraction : MonoBehaviour
     {
         dialogueActive = false;
         IsInDialogue = false;
+
+        // Stop the cinematic first so the camera is back on the player
+        // before any after-dialogue cutscene starts.
+        StopCinematic();
 
         if (dialoguePanel != null)
             dialoguePanel.SetActive(false);

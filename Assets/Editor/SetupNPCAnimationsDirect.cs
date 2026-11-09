@@ -22,11 +22,110 @@ public class SetupNPCAnimationsDirect
     {
         SetupWomanLeader();
         SetupWomanViceLeader();
+        SetupFemaleNpc();
 
         var scene = EditorSceneManager.GetActiveScene();
         EditorSceneManager.MarkSceneDirty(scene);
         EditorSceneManager.SaveScene(scene);
-        Debug.Log("[SetupNPCAnimations] Successfully configured animations for WomanLeader and WomanViceLeader!");
+        Debug.Log("[SetupNPCAnimations] Successfully configured animations for WomanLeader, WomanViceLeader, and FemaleNpc!");
+    }
+
+    [MenuItem("Tools/Setup Female NPC Animation")]
+    public static void SetupFemaleNpc()
+    {
+        // 1. Ensure Female_01.fbx is configured as Humanoid
+        string fbxPath = "Assets/Prefabs/Female_Starter/FBX/Characters/Female_01.fbx";
+        ModelImporter importer = AssetImporter.GetAtPath(fbxPath) as ModelImporter;
+        if (importer != null)
+        {
+            bool needReimport = false;
+            if (importer.animationType != ModelImporterAnimationType.Human)
+            {
+                importer.animationType = ModelImporterAnimationType.Human;
+                needReimport = true;
+            }
+            if (importer.avatarSetup != ModelImporterAvatarSetup.CreateFromThisModel)
+            {
+                importer.avatarSetup = ModelImporterAvatarSetup.CreateFromThisModel;
+                needReimport = true;
+            }
+            if (needReimport)
+            {
+                importer.SaveAndReimport();
+            }
+        }
+
+        // 2. Find Avatar
+        Avatar femaleAvatar = null;
+        foreach (var obj in AssetDatabase.LoadAllAssetsAtPath(fbxPath))
+        {
+            if (obj is Avatar av)
+            {
+                femaleAvatar = av;
+                break;
+            }
+        }
+
+        // Fallback to PT_Female avatar if needed
+        if (femaleAvatar == null)
+        {
+            string ptFbx = "Assets/Polytope Studio/Lowpoly_Characters/Sources/Modular_NPC/Meshes/Peasants_Citizens/PT_Female_Modular_Free_Pack.fbx";
+            foreach (var obj in AssetDatabase.LoadAllAssetsAtPath(ptFbx))
+            {
+                if (obj is Avatar av)
+                {
+                    femaleAvatar = av;
+                    break;
+                }
+            }
+        }
+
+        // 3. Controller
+        string controllerPath = "Assets/Animations/PT_Female_Modular_Free_Pack.controller";
+        RuntimeAnimatorController controller = AssetDatabase.LoadAssetAtPath<RuntimeAnimatorController>(controllerPath);
+
+        // 4. Configure Prefab
+        string prefabPath = "Assets/Prefabs/FemaleNpc.prefab";
+        GameObject prefab = AssetDatabase.LoadAssetAtPath<GameObject>(prefabPath);
+        if (prefab != null)
+        {
+            Animator anim = prefab.GetComponent<Animator>();
+            if (anim == null) anim = prefab.AddComponent<Animator>();
+            anim.runtimeAnimatorController = controller;
+            if (femaleAvatar != null) anim.avatar = femaleAvatar;
+            anim.applyRootMotion = false;
+            EditorUtility.SetDirty(prefab);
+            AssetDatabase.SaveAssets();
+            Debug.Log("[SetupNPCAnimations] FemaleNpc prefab updated with Animator!");
+        }
+
+        // 5. Configure scene instance in active scene
+        GameObject npc = GameObject.Find("FemaleNpc");
+        if (npc == null)
+        {
+            var parent = GameObject.Find("NPCs");
+            if (parent != null)
+            {
+                var t = parent.transform.Find("FemaleNpc");
+                if (t != null) npc = t.gameObject;
+            }
+        }
+
+        if (npc != null)
+        {
+            Undo.RecordObject(npc, "Setup FemaleNpc Animator");
+            Animator anim = npc.GetComponent<Animator>();
+            if (anim == null) anim = Undo.AddComponent<Animator>(npc);
+
+            anim.runtimeAnimatorController = controller;
+            if (femaleAvatar != null) anim.avatar = femaleAvatar;
+            anim.applyRootMotion = false;
+
+            EditorUtility.SetDirty(anim);
+            EditorUtility.SetDirty(npc);
+            EditorSceneManager.MarkSceneDirty(npc.scene);
+            Debug.Log("[SetupNPCAnimations] Successfully configured FemaleNpc in scene!");
+        }
     }
 
     private static void SetupWomanLeader()
