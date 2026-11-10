@@ -6,6 +6,9 @@ using UnityEngine;
 // (e.g. Rosa), holds there, then returns to normal gameplay.
 // Put this on an empty GameObject and assign it to the NPC's
 // "Cutscene After First Talk" slot.
+//
+// It can also be started by a trigger zone: add a CutsceneTrigger, then in its
+// On Player Enter () list pick CameraPanCutscene > PlayFromTrigger ().
 public class CameraPanCutscene : MonoBehaviour
 {
     [Header("Targets")]
@@ -44,6 +47,13 @@ public class CameraPanCutscene : MonoBehaviour
     private Quaternion savedRot;
 
     public bool IsPlaying => running;
+
+    // Parameterless version so it shows up in UnityEvent dropdowns
+    // (e.g. CutsceneTrigger). Plays the cutscene with no "when finished" callback.
+    public void PlayFromTrigger()
+    {
+        Play(null);
+    }
 
     public void Play(Action onFinished)
     {

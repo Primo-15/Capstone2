@@ -14,7 +14,27 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::QuestData
   questID: main_quest_06
   questTitle: Rescue Inay
-  questDescription: 
+  questDescription: Isay must rescue her Inay
   questType: 0
   prerequisiteQuestIDs: []
-  objectives: []
+  objectives:
+  - objectiveID: talk_to_Joselina
+    description: Talk to Joselina
+    objectiveType: 0
+    requiredAmount: 1
+  - objectiveID: scout_the_vilage
+    description: Scout the village
+    objectiveType: 2
+    requiredAmount: 1
+  - objectiveID: get_key
+    description: Get the Key
+    objectiveType: 1
+    requiredAmount: 1
+  - objectiveID: open_prison_door
+    description: Open the prison door
+    objectiveType: 0
+    requiredAmount: 1
+  - objectiveID: enter_the_prison
+    description: Enter the prison
+    objectiveType: 2
+    requiredAmount: 1

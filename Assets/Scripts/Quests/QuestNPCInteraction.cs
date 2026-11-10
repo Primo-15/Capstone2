@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.Events;
 using TMPro;
 
 [System.Serializable]
@@ -19,6 +20,9 @@ public class QuestNPCInteraction : MonoBehaviour
     [SerializeField] private float interactionRange = 3f;
     [SerializeField] private KeyCode interactionKey = KeyCode.E;
     [SerializeField] private Transform player;
+
+    [Tooltip("Untick for objects that must stay put when talked to (like a gate). When unticked, the object will NOT rotate toward the player.")]
+    [SerializeField] private bool facePlayerOnInteract = true;
 
     [Header("Dialogue Settings")]
     [SerializeField] private GameObject dialoguePanel;
@@ -66,6 +70,12 @@ public class QuestNPCInteraction : MonoBehaviour
     // True while ANY NPC dialogue is open. The player movement script
     // checks this to block movement until the dialogue is finished.
     public static bool IsInDialogue { get; private set; }
+    // Lets other scripts (like CutsceneTrigger) lock the player and block NPC talking.
+    public static void SetCutsceneLock(bool locked)
+    {
+        cutsceneActive = locked;
+        IsInDialogue = locked;
+    }
 
     // Any line that starts with this is spoken by the player.
     private const string PlayerPrefix = "[P]";
@@ -94,6 +104,9 @@ public class QuestNPCInteraction : MonoBehaviour
 
     [Tooltip("Optional. A CHILD model (e.g. the knife on the ground) to hide once this NPC gives the reward item. Don't assign this NPC's own object.")]
     [SerializeField] private GameObject objectToHideOnReward;
+
+    [Tooltip("Fires once, right after this NPC successfully receives the required item. Hook up GateController.Open here to open the gate.")]
+    [SerializeField] private UnityEvent onRequiredItemReceived;
 
     [Header("Cutscene")]
     [Tooltip("Optional. Plays once, right after the FIRST conversation with this NPC finishes.")]
@@ -130,6 +143,7 @@ public class QuestNPCInteraction : MonoBehaviour
 
     private void Update()
     {
+
         if (player == null)
             return;
 
@@ -190,6 +204,10 @@ public class QuestNPCInteraction : MonoBehaviour
     {
         if (animator != null)
             animator.SetTrigger("Talk");
+
+        // Objects like gates must not turn toward the player.
+        if (!facePlayerOnInteract)
+            return;
 
         Vector3 direction = player.position - transform.position;
         direction.y = 0f;
@@ -604,6 +622,9 @@ public class QuestNPCInteraction : MonoBehaviour
                 Debug.Log(
                     $"{npcName}: Thank you for the {requiredItemID}!"
                 );
+
+                // Let other objects react (e.g. open the gate).
+                onRequiredItemReceived?.Invoke();
             }
 
             return;

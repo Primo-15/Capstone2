@@ -393,4 +393,22 @@ public class QuestManager : MonoBehaviour
     {
         return completedQuestIDs.Contains(questID);
     }
+
+    // How many objectives of this quest the UI should show right now.
+    // Active quest: completed objectives + the current one (later ones stay hidden).
+    // Completed quest: all of them.
+    // Not started: only the first one.
+    public int GetVisibleObjectiveCount(QuestData quest)
+    {
+        if (quest == null || quest.objectives == null)
+            return 0;
+
+        if (completedQuestIDs.Contains(quest.questID))
+            return quest.objectives.Length;
+
+        if (quest == activeQuest)
+            return Mathf.Min(currentObjectiveIndex + 1, quest.objectives.Length);
+
+        return Mathf.Min(1, quest.objectives.Length);
+    }
 }

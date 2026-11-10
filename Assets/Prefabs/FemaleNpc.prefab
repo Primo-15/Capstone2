@@ -100,6 +100,7 @@ MonoBehaviour:
   interactionRange: 3
   interactionKey: 101
   player: {fileID: 0}
+  facePlayerOnInteract: 1
   dialoguePanel: {fileID: 0}
   dialogueText: {fileID: 0}
   advanceCooldown: 0.5
@@ -125,6 +126,9 @@ MonoBehaviour:
   requiredItemID: 
   noRepeatAfterDelivery: 0
   objectToHideOnReward: {fileID: 0}
+  onRequiredItemReceived:
+    m_PersistentCalls:
+      m_Calls: []
   cutsceneAfterFirstTalk: {fileID: 0}
   dialogueCinematic: {fileID: 0}
   cinematicStartLine: 12

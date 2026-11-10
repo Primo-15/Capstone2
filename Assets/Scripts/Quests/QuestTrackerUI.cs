@@ -1,5 +1,4 @@
-﻿
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
@@ -108,7 +107,15 @@ public class QuestTrackerUI : MonoBehaviour
             return;
         }
 
-        for (int i = 0; i < quest.objectives.Length; i++)
+        // Only show objectives the player has reached: the ones already
+        // completed plus the current one. Later objectives stay hidden
+        // until the previous one is finished.
+        int visibleCount = Mathf.Min(
+            objectiveIndex + 1,
+            quest.objectives.Length
+        );
+
+        for (int i = 0; i < visibleCount; i++)
         {
             QuestObjectiveData objective = quest.objectives[i];
 
@@ -256,18 +263,20 @@ public class QuestTrackerUI : MonoBehaviour
 
         UpdateQuestDisplay(quest, questManager.CurrentObjectiveIndex);
 
-        if (questManager.CurrentObjectiveIndex < quest.objectives.Length)
+        int currentIndex = questManager.CurrentObjectiveIndex;
+
+        if (currentIndex < quest.objectives.Length &&
+            currentIndex < objectiveTexts.Count)
         {
-            TMP_Text currentEntry =
-                objectiveTexts[questManager.CurrentObjectiveIndex];
+            TMP_Text currentEntry = objectiveTexts[currentIndex];
 
             if (requiredAmount > 1)
             {
                 currentEntry.text =
                     "➤  " +
-                    quest.objectives[questManager.CurrentObjectiveIndex].description +
+                    quest.objectives[currentIndex].description +
                     $" ({currentProgress}/{requiredAmount})";
             }
         }
-    }   
+    }
 }

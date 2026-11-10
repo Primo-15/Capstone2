@@ -440,11 +440,15 @@ public class QuestLogUI : MonoBehaviour
             ? questManager.CurrentObjectiveIndex
             : 0;
 
+        // Only show objectives the player has reached.
+        // Later ones stay hidden until the previous objective is finished.
+        int visibleCount = questManager.GetVisibleObjectiveCount(quest);
+
         StringBuilder text = new StringBuilder();
         text.AppendLine("OBJECTIVES");
         text.AppendLine();
 
-        for (int i = 0; i < quest.objectives.Length; i++)
+        for (int i = 0; i < visibleCount; i++)
         {
             QuestObjectiveData objective = quest.objectives[i];
 

@@ -17,6 +17,10 @@ public class GameOverScreen : MonoBehaviour
     [SerializeField] private string cursorScriptPrefix = "CursorAlt";
     [SerializeField] private Behaviour[] disableOnGameOver;
 
+    [Header("Tries")]
+    [Tooltip("If ticked, hearts are ignored: no tries counter, and Try Again can be clicked forever.")]
+    [SerializeField] private bool infiniteTries = false;
+
     private bool isGameOver;
     private TMP_Text tryAgainLabel;
     private Color tryAgainLabelColor = Color.black;
@@ -82,24 +86,34 @@ public class GameOverScreen : MonoBehaviour
         if (isGameOver) return;
         isGameOver = true;
 
-        // Every game over costs one heart (and refills stamina).
-        PlayerStats.LoseHeart();
+        // Every game over costs one heart (and refills stamina),
+        // unless tries are infinite.
+        if (!infiniteTries)
+            PlayerStats.LoseHeart();
 
         if (triesLeftText != null)
         {
-            triesLeftText.text = PlayerStats.HasHearts
-                ? "Tries left: " + PlayerStats.Hearts
-                : "No tries left";
+            // Hide the counter entirely when tries are infinite.
+            triesLeftText.gameObject.SetActive(!infiniteTries);
+
+            if (!infiniteTries)
+            {
+                triesLeftText.text = PlayerStats.HasHearts
+                    ? "Tries left: " + PlayerStats.Hearts
+                    : "No tries left";
+            }
         }
+
+        bool canRetry = infiniteTries || PlayerStats.HasHearts;
 
         if (tryAgainButton != null)
         {
-            tryAgainButton.interactable = PlayerStats.HasHearts;
+            tryAgainButton.interactable = canRetry;
 
             // Grey out the label too when Try Again is unavailable.
             if (tryAgainLabel != null)
             {
-                tryAgainLabel.color = PlayerStats.HasHearts
+                tryAgainLabel.color = canRetry
                     ? tryAgainLabelColor
                     : disabledLabelColor;
             }
@@ -129,7 +143,7 @@ public class GameOverScreen : MonoBehaviour
 
     public void TryAgain()
     {
-        if (!PlayerStats.HasHearts)
+        if (!infiniteTries && !PlayerStats.HasHearts)
             return; // no hearts left, Main Menu only
 
         Time.timeScale = 1f;
