@@ -52,6 +52,12 @@ public class KeyPickup : MonoBehaviour
     private Vector3 initialWorldScale;
 
     public bool IsPickedUp => isPickedUp;
+    public HumanBodyBones HandBone => handBone;
+    public Vector3 CarryPosition => carryPosition;
+    public Vector3 CarryEulerAngles => carryEulerAngles;
+    public Vector3 CarryScale => carryScale;
+    public string QuestID => questID;
+    public string ObjectiveID => objectiveID;
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
     private static void AutoSetupInScene()
@@ -80,6 +86,15 @@ public class KeyPickup : MonoBehaviour
                 Destroy(npcInteraction);
             }
 
+            // If AcquireableItems is managing this object in M5, yield to AcquireableItems
+            if (keyObj.GetComponent<AcquireableItems>() != null)
+            {
+                var kp = keyObj.GetComponent<KeyPickup>();
+                if (kp != null)
+                    kp.enabled = false;
+                return;
+            }
+
             if (keyObj.GetComponent<KeyPickup>() == null)
             {
                 keyObj.AddComponent<KeyPickup>();
@@ -98,6 +113,13 @@ public class KeyPickup : MonoBehaviour
         {
             oldInteraction.enabled = false;
             Destroy(oldInteraction);
+        }
+
+        // If AcquireableItems is attached on this GameObject in Scene M5, let AcquireableItems handle pickup and hotbar
+        if (SceneManager.GetActiveScene().name == "M5" && GetComponent<AcquireableItems>() != null)
+        {
+            enabled = false;
+            return;
         }
     }
 

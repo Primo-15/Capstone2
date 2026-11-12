@@ -5,42 +5,123 @@ using UnityEngine;
 [System.Serializable]
 public class SaveData
 {
-    public string sceneName;                       // scene to load on Continue
-    public List<string> completedQuestIds = new(); // completed quests to restore
+    public string sceneName;
+    public List<string> completedQuestIds = new List<string>();
 
-    public bool hasPosition;                       // true once a position was saved
+    public bool hasPosition;
     public Vector3 playerPosition;
     public float playerYRotation;
+
+    // Persists remaining hearts in M3 so Main Menu -> Continue does not refill lost hearts.
+    public int m3Hearts = PlayerStats.MaxHearts;
 }
 
 public static class SaveSystem
 {
-    private static string FilePath => Path.Combine(Application.persistentDataPath, "save.json");
+    private static string FilePath =>
+        Path.Combine(
+            Application.persistentDataPath,
+            "save.json"
+        );
 
-    // Quest progress to restore (consumed by QuestManager)
+    // Quest progress to restore.
     public static SaveData Pending;
 
-    // Player position to restore (consumed by PlayerSpawnLoader)
+    // Player position to restore.
     public static SaveData PendingSpawn;
 
-    public static bool HasSave() => File.Exists(FilePath);
+    // Tracks a legitimate map transition.
+    public static bool PendingMapTransition;
+
+    public static string PendingMapScene;
+
+    public static bool HasSave()
+    {
+        return File.Exists(FilePath);
+    }
 
     public static void Save(SaveData data)
     {
-        File.WriteAllText(FilePath, JsonUtility.ToJson(data, true));
-        Debug.Log("Autosaved to " + FilePath);
+        File.WriteAllText(
+            FilePath,
+            JsonUtility.ToJson(data, true)
+        );
+
+        Debug.Log("Saved to " + FilePath);
+    }
+
+    // Save ONLY when advancing to another map (or returning to M2 after losing all hearts in M3).
+    public static void SaveMapCheckpoint(string nextScene)
+    {
+        if (string.IsNullOrWhiteSpace(nextScene))
+        {
+            Debug.LogError("Cannot save an empty map name.");
+            return;
+        }
+
+        SaveData data = new SaveData();
+
+        data.sceneName = nextScene;
+
+        // Never carry previous map quest progress.
+        data.completedQuestIds =
+            new List<string>();
+
+        // Always use the new map's default spawn.
+        data.hasPosition = false;
+        data.m3Hearts = PlayerStats.MaxHearts;
+
+        Save(data);
+
+        PendingMapScene = nextScene;
+        PendingMapTransition = true;
+
+        // Fresh checkpoint into M3 starts with full hearts.
+        if (nextScene == "M3")
+        {
+            PlayerStats.ResetAll();
+        }
+
+        Debug.Log(
+            $"Map checkpoint saved: {nextScene}"
+        );
+    }
+
+    // Saves the remaining heart count while in M3 so Continue keeps the exact heart count.
+    public static void SaveM3Hearts(int hearts)
+    {
+        SaveData data = Load() ?? new SaveData();
+        data.sceneName = "M3";
+        data.completedQuestIds = new List<string>();
+        data.hasPosition = false;
+        data.m3Hearts = Mathf.Clamp(hearts, 1, PlayerStats.MaxHearts);
+        Save(data);
+    }
+
+    public static void ClearPendingMapTransition()
+    {
+        PendingMapTransition = false;
+        PendingMapScene = null;
     }
 
     public static SaveData Load()
     {
-        if (!HasSave()) return null;
-        return JsonUtility.FromJson<SaveData>(File.ReadAllText(FilePath));
+        if (!HasSave())
+            return null;
+
+        return JsonUtility.FromJson<SaveData>(
+            File.ReadAllText(FilePath)
+        );
     }
 
     public static void Delete()
     {
-        if (HasSave()) File.Delete(FilePath);
+        if (HasSave())
+            File.Delete(FilePath);
+
         Pending = null;
         PendingSpawn = null;
+
+        ClearPendingMapTransition();
     }
 }

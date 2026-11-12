@@ -1979,6 +1979,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 2884351092225532727, guid: 3197d31fe4fd3dd4ab29197ded90cf3c, type: 3}
       insertIndex: -1
       addedObject: {fileID: 431744723}
+    - targetCorrespondingSourceObject: {fileID: 2884351092225532727, guid: 3197d31fe4fd3dd4ab29197ded90cf3c, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 431744726}
   m_SourcePrefab: {fileID: 100100000, guid: 3197d31fe4fd3dd4ab29197ded90cf3c, type: 3}
 --- !u!4 &431744721 stripped
 Transform:
@@ -2065,6 +2068,38 @@ CapsuleCollider:
   m_Height: 2.01
   m_Direction: 1
   m_Center: {x: 0, y: 0.91, z: 0}
+--- !u!114 &431744726
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 431744722}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ea54a8163d38cb441a968d6f9ae28dde, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::QuestPointerTarget
+  questID: 
+  objectiveIDs:
+  - obtain_the_gulay
+  markBeforeQuestStarts: 0
+  pointAt: {fileID: 0}
+  autoHeight: 1
+  heightAbove: 2.2
+  color: {r: 0.19999999, g: 1, b: 0.7142979, a: 1}
+  label: 
+  completeWhenReached: 0
+  reachRadius: 3
+  requiredItemID: 
+  removeItem: 1
+  pressKeyToComplete: 0
+  key: 101
+  prompt: {fileID: 0}
+  showWhenDone: []
+  onCompleted:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!1 &459098639
 GameObject:
   m_ObjectHideFlags: 0
@@ -2853,6 +2888,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 1606037529433101695, guid: 4a2f1fe7e36596049b29f061a77ff748, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1036603485}
+    - targetCorrespondingSourceObject: {fileID: 1606037529433101695, guid: 4a2f1fe7e36596049b29f061a77ff748, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1036603487}
   m_SourcePrefab: {fileID: 100100000, guid: 4a2f1fe7e36596049b29f061a77ff748, type: 3}
 --- !u!4 &620927872 stripped
 Transform:
@@ -3375,6 +3413,63 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &847974978
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 847974980}
+  - component: {fileID: 847974979}
+  m_Layer: 0
+  m_Name: MovementTutorialUI
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &847974979
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 847974978}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 52c4020ff0c453c469f978992244c1e5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MovementTutorialUI
+  moveMessage: Press W, A, S, D to move
+  runMessage: Press Shift to run
+  interactMessage: Press E to interact
+  fontSize: 28
+  panelWidth: 480
+  lineHeight: 50
+  padding: 15
+  screenMargin: 30
+  pendingColor: {r: 1, g: 1, b: 1, a: 1}
+  doneColor: {r: 0.35, g: 0.9, b: 0.55, a: 1}
+  npcInteractRange: 3.5
+  blinkDuration: 1.25
+  blinkInterval: 0.25
+--- !u!4 &847974980
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 847974978}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 15.17905, y: 1.02399, z: 18.39144}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &848065207
 GameObject:
   m_ObjectHideFlags: 0
@@ -3515,6 +3610,8 @@ MonoBehaviour:
   questObjectiveText: {fileID: 9812687}
   objectiveSpacing: 35
   completionDisplayDuration: 5
+  noQuestTitle: Quest
+  noQuestMessage: Talk to Inay
 --- !u!1001 &869635807
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -4108,6 +4205,38 @@ MonoBehaviour:
   cutsceneAfterFirstTalk: {fileID: 0}
   dialogueCinematic: {fileID: 0}
   cinematicStartLine: 12
+--- !u!114 &1036603487
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1036603483}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ea54a8163d38cb441a968d6f9ae28dde, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::QuestPointerTarget
+  questID: 
+  objectiveIDs:
+  - talk_to_Inay
+  markBeforeQuestStarts: 0
+  pointAt: {fileID: 0}
+  autoHeight: 1
+  heightAbove: 2.2
+  color: {r: 1, g: 0.28623304, b: 0.19999999, a: 1}
+  label: 
+  completeWhenReached: 0
+  reachRadius: 3
+  requiredItemID: 
+  removeItem: 1
+  pressKeyToComplete: 0
+  key: 101
+  prompt: {fileID: 0}
+  showWhenDone: []
+  onCompleted:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!1 &1041985534
 GameObject:
   m_ObjectHideFlags: 0
@@ -4530,6 +4659,11 @@ MonoBehaviour:
   onCompleted:
     m_PersistentCalls:
       m_Calls: []
+--- !u!1 &1111955883 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 2793993067306862133, guid: 0b37625805095584f907759694adc63f, type: 3}
+  m_PrefabInstance: {fileID: 7590556049226622653}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &1223479000
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -7716,10 +7850,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: a5729515ec1bf194cb45e25a9061bcdf, type: 2}
   - {fileID: 11400000, guid: 6997feda6f987a144b86bd53e636d23b, type: 2}
   - {fileID: 11400000, guid: 1793700e2fe46764c87ff03f9f70e458, type: 2}
-  autosaveQuestIDs:
-  - main_quest_01
-  - main_quest_02
-  - main_quest_03
+  mainMenuScene: Main Menu
 --- !u!4 &2104668206
 Transform:
   m_ObjectHideFlags: 0
@@ -7974,6 +8105,38 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 7505249337537425076, guid: 0b37625805095584f907759694adc63f, type: 3}
   m_PrefabInstance: {fileID: 7590556049226622653}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &3309882858713508435
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1111955883}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ea54a8163d38cb441a968d6f9ae28dde, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::QuestPointerTarget
+  questID: 
+  objectiveIDs:
+  - Talk_to_Mang_Rodolfo
+  markBeforeQuestStarts: 0
+  pointAt: {fileID: 0}
+  autoHeight: 1
+  heightAbove: 2.2
+  color: {r: 0.2687344, g: 0.348542, b: 0.9339623, a: 1}
+  label: 
+  completeWhenReached: 0
+  reachRadius: 3
+  requiredItemID: 
+  removeItem: 1
+  pressKeyToComplete: 0
+  key: 101
+  prompt: {fileID: 0}
+  showWhenDone: []
+  onCompleted:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!1001 &4583486936781452381
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -8175,35 +8338,35 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7702813641580452775, guid: 34f45719c10c9ec4f81d078c8f29af93, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 6.36
+      value: 6.49
       objectReference: {fileID: 0}
     - target: {fileID: 7702813641580452775, guid: 34f45719c10c9ec4f81d078c8f29af93, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 1.41
+      value: 1.19
       objectReference: {fileID: 0}
     - target: {fileID: 7702813641580452775, guid: 34f45719c10c9ec4f81d078c8f29af93, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 10.14
+      value: 10.41
       objectReference: {fileID: 0}
     - target: {fileID: 7702813641580452775, guid: 34f45719c10c9ec4f81d078c8f29af93, type: 3}
       propertyPath: m_LocalRotation.w
-      value: -0.22395696
+      value: -0.223936
       objectReference: {fileID: 0}
     - target: {fileID: 7702813641580452775, guid: 34f45719c10c9ec4f81d078c8f29af93, type: 3}
       propertyPath: m_LocalRotation.x
-      value: -0
+      value: -0.0030652466
       objectReference: {fileID: 0}
     - target: {fileID: 7702813641580452775, guid: 34f45719c10c9ec4f81d078c8f29af93, type: 3}
       propertyPath: m_LocalRotation.y
-      value: 0.97459906
+      value: 0.9745078
       objectReference: {fileID: 0}
     - target: {fileID: 7702813641580452775, guid: 34f45719c10c9ec4f81d078c8f29af93, type: 3}
       propertyPath: m_LocalRotation.z
-      value: -0
+      value: -0.013339111
       objectReference: {fileID: 0}
     - target: {fileID: 7702813641580452775, guid: 34f45719c10c9ec4f81d078c8f29af93, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
+      value: 1.568
       objectReference: {fileID: 0}
     - target: {fileID: 7702813641580452775, guid: 34f45719c10c9ec4f81d078c8f29af93, type: 3}
       propertyPath: m_LocalEulerAnglesHint.y
@@ -8293,7 +8456,10 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 2793993067306862133, guid: 0b37625805095584f907759694adc63f, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 3309882858713508435}
   m_SourcePrefab: {fileID: 100100000, guid: 0b37625805095584f907759694adc63f, type: 3}
 --- !u!1001 &8492192390624210691
 PrefabInstance:
@@ -8373,3 +8539,4 @@ SceneRoots:
   - {fileID: 4862887924350607504}
   - {fileID: 4583486936781452381}
   - {fileID: 5760764622876706335}
+  - {fileID: 847974980}

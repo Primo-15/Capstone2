@@ -16,7 +16,8 @@ public class QuestSceneTransition : MonoBehaviour
 
     [Header("Disable Gameplay")]
     [Tooltip("Add the player movement and input scripts here.")]
-    [SerializeField] private MonoBehaviour[] gameplayComponentsToDisable;
+    [SerializeField]
+    private MonoBehaviour[] gameplayComponentsToDisable;
 
     private bool isTransitioning;
 
@@ -40,13 +41,17 @@ public class QuestSceneTransition : MonoBehaviour
     {
         if (isTransitioning)
         {
-            Debug.LogWarning("A scene transition is already in progress.");
+            Debug.LogWarning(
+                "A scene transition is already in progress."
+            );
             return false;
         }
 
         if (string.IsNullOrWhiteSpace(sceneName))
         {
-            Debug.LogError("Cannot load a scene: the scene name is empty.");
+            Debug.LogError(
+                "Cannot load a scene: the scene name is empty."
+            );
             return false;
         }
 
@@ -61,17 +66,16 @@ public class QuestSceneTransition : MonoBehaviour
 
         isTransitioning = true;
 
-        // Stop player movement and gameplay input.
         if (gameplayComponentsToDisable != null)
         {
-            foreach (MonoBehaviour component in gameplayComponentsToDisable)
+            foreach (MonoBehaviour component in
+                gameplayComponentsToDisable)
             {
                 if (component != null)
                     component.enabled = false;
             }
         }
 
-        // Display the map-cleared message.
         if (transitionMessage != null)
             transitionMessage.text = clearedMessage;
 
@@ -92,6 +96,9 @@ public class QuestSceneTransition : MonoBehaviour
         yield return new WaitForSecondsRealtime(
             Mathf.Max(0f, transitionDelay)
         );
+
+        // Save the next map, NOT the completed quest.
+        SaveSystem.SaveMapCheckpoint(sceneName);
 
         SceneManager.LoadScene(sceneName);
     }

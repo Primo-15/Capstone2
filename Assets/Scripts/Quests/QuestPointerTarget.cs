@@ -13,6 +13,9 @@ using UnityEngine.Events;
 ///   - its Delivery Objective ID > marked while that is the current objective
 ///   - its NPC Name              > shown above the pin (unless you type a Label)
 ///
+/// "Show After Quest ID": for a quest giver, hides the pre-quest pin until that quest is completed
+///   (e.g. Mang Rodolfo's pin stays hidden at the start of the scene until Rosa's quest is done).
+///
 /// DELIVERY AREA (no NPC): put this on an empty object with a Box Collider (Is Trigger) covering the area.
 ///   Fill in Quest ID + Objective IDs (the delivery objective), tick "Complete When Reached" and set
 ///   "Required Item ID". Walking in while carrying the item completes the objective and takes the item
@@ -29,6 +32,9 @@ public class QuestPointerTarget : MonoBehaviour
     [Tooltip("Also show the pin before the quest starts (the NPC who gives the quest). " +
              "Automatic when the QuestNPCInteraction has Starts Quest ticked.")]
     public bool markBeforeQuestStarts;
+    [Tooltip("Don't show the pre-quest pin until this quest is completed (e.g. the quest right before this one). " +
+             "Empty = no extra condition.")]
+    public string showAfterQuestID = "";
 
     [Header("Marker")]
     [Tooltip("Where the pin points. Empty = this object (or the bottom centre of its area trigger).")]
@@ -249,8 +255,14 @@ public class QuestPointerTarget : MonoBehaviour
         }
 
         // not started yet: only the quest giver, and only when the quest can actually start now
-        // (QuestNPCInteraction only starts a quest when no other quest is active)
-        return beforeStart && q == null && m.ArePrerequisitesMet(qid);
+        // (QuestNPCInteraction only starts a quest when no other quest is active),
+        // and only after the "Show After Quest ID" quest is completed (if one is set)
+        if (!beforeStart || q != null || !m.ArePrerequisitesMet(qid)) return false;
+
+        if (!string.IsNullOrWhiteSpace(showAfterQuestID) && !m.IsQuestCompleted(showAfterQuestID))
+            return false;
+
+        return true;
     }
 
     static string CurrentObjective(QuestManager m, QuestData q)

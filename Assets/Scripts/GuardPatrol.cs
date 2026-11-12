@@ -31,10 +31,17 @@ public class GuardPatrol : MonoBehaviour
     [SerializeField] private float catchDistance = 1.5f;
     [SerializeField] private float stunDuration = 3f;
 
+    [Header("Distraction / Investigation")]
+    [SerializeField] private float distractionRadius = 4.5f;
+    [SerializeField] private float investigateDuration = 2f;
+    [SerializeField] private float investigateStoppingDistance = 0.6f;
+
     [Header("Debug")]
     [SerializeField] private bool showDebugMessages = true;
 
     private NavMeshAgent agent;
+    private Animator guardAnimator;
+    private bool hasIsMovingParam;
     private Transform targetPoint;
     private float waitTimer;
     private bool waiting;
@@ -47,12 +54,46 @@ public class GuardPatrol : MonoBehaviour
     private float stunTimer;
     private float lostTimer;
 
+    private bool investigating;
+    private bool investigatingArrived;
+    private Vector3 investigateTarget;
+    private Vector3 investigateLookPoint;
+    private float investigateTimer;
+    private float activeInvestigateDuration;
+
     public bool PlayerDetected => playerDetected;
     public bool IsChasing => chasing;
+    public bool IsInvestigating => investigating;
 
     private void Awake()
     {
         agent = GetComponent<NavMeshAgent>();
+        guardAnimator = GetComponentInChildren<Animator>();
+        CacheAnimatorParameters();
+    }
+
+    private void CacheAnimatorParameters()
+    {
+        hasIsMovingParam = false;
+        if (guardAnimator == null || guardAnimator.runtimeAnimatorController == null)
+            return;
+
+        foreach (AnimatorControllerParameter param in guardAnimator.parameters)
+        {
+            if (param.type == AnimatorControllerParameterType.Bool && param.name == "IsMoving")
+            {
+                hasIsMovingParam = true;
+                break;
+            }
+        }
+    }
+
+    private void SetGuardMovingAnimation(bool moving)
+    {
+        if (guardAnimator != null && hasIsMovingParam)
+        {
+            guardAnimator.SetBool("IsMoving", moving);
+        }
     }
 
     private void Start()
@@ -125,11 +166,176 @@ public class GuardPatrol : MonoBehaviour
 
         if (chasing)
         {
+            if (investigating)
+            {
+                investigating = false;
+                investigatingArrived = false;
+                SetGuardMovingAnimation(true);
+            }
+
             Chase();
             return; // skip patrol logic while chasing
         }
 
+        if (investigating)
+        {
+            UpdateInvestigation();
+            return;
+        }
+
         Patrol();
+    }
+
+    // ---------------- DISTRACTION / INVESTIGATION ----------------
+
+    public static int NotifyThrownRockLanded(Vector3 landingPosition, float maxRadius = 4.5f, float investigateSeconds = 2f)
+    {
+        GuardPatrol[] guards = FindObjectsByType<GuardPatrol>(FindObjectsSortMode.None);
+        int notifiedCount = 0;
+
+        for (int i = 0; i < guards.Length; i++)
+        {
+            GuardPatrol guard = guards[i];
+            if (guard == null || !guard.isActiveAndEnabled)
+                continue;
+
+            float radius = maxRadius > 0f ? maxRadius : guard.distractionRadius;
+            float dist3D = Vector3.Distance(guard.transform.position, landingPosition);
+            float distXZ = Vector2.Distance(
+                new Vector2(guard.transform.position.x, guard.transform.position.z),
+                new Vector2(landingPosition.x, landingPosition.z));
+
+            if (dist3D <= radius || distXZ <= radius)
+            {
+                guard.InvestigateLocation(landingPosition, investigateSeconds);
+                notifiedCount++;
+            }
+        }
+
+        return notifiedCount;
+    }
+
+    public void InvestigateLocation(Vector3 rockLandingPosition, float duration = 2f)
+    {
+        if (!isActiveAndEnabled || caught || stunned || agent == null || !agent.enabled || !agent.isOnNavMesh)
+            return;
+
+        // If actively seeing the player right now, prioritize sight
+        if (playerDetected)
+            return;
+
+        chasing = false;
+        waiting = false;
+        investigating = true;
+        investigatingArrived = false;
+        activeInvestigateDuration = duration > 0f ? duration : (investigateDuration > 0f ? investigateDuration : 2f);
+        investigateTimer = activeInvestigateDuration;
+        investigateLookPoint = rockLandingPosition;
+
+        Vector3 navDestination = rockLandingPosition;
+        if (NavMesh.SamplePosition(rockLandingPosition, out NavMeshHit navHit, 4.5f, NavMesh.AllAreas))
+        {
+            navDestination = navHit.position;
+        }
+
+        investigateTarget = navDestination;
+        agent.isStopped = false;
+        agent.speed = patrolSpeed > 0.01f ? patrolSpeed : 1f;
+        agent.SetDestination(investigateTarget);
+        SetGuardMovingAnimation(true);
+
+        if (showDebugMessages)
+            Debug.Log("Guard detected thrown rock! Moving to investigate at " + rockLandingPosition, this);
+    }
+
+    private void UpdateInvestigation()
+    {
+        if (agent == null || !agent.enabled || !agent.isOnNavMesh)
+        {
+            investigating = false;
+            investigatingArrived = false;
+            return;
+        }
+
+        if (!investigatingArrived)
+        {
+            if (agent.pathPending)
+                return;
+
+            float stopDist = Mathf.Max(investigateStoppingDistance, agent.stoppingDistance + 0.15f);
+            float flatDist = Vector2.Distance(
+                new Vector2(transform.position.x, transform.position.z),
+                new Vector2(investigateTarget.x, investigateTarget.z));
+
+            bool reached = agent.remainingDistance <= stopDist
+                || flatDist <= stopDist
+                || (agent.pathStatus != NavMeshPathStatus.PathComplete && agent.velocity.sqrMagnitude < 0.01f);
+
+            if (reached)
+            {
+                investigatingArrived = true;
+                investigateTimer = activeInvestigateDuration > 0f ? activeInvestigateDuration : 2f;
+                agent.ResetPath();
+                agent.isStopped = true;
+                SetGuardMovingAnimation(false);
+
+                if (showDebugMessages)
+                    Debug.Log("Guard investigating rock for " + investigateTimer + " seconds.", this);
+            }
+        }
+        else
+        {
+            Vector3 lookDir = investigateLookPoint - transform.position;
+            lookDir.y = 0f;
+            if (lookDir.sqrMagnitude > 0.001f)
+            {
+                Quaternion targetRot = Quaternion.LookRotation(lookDir.normalized, Vector3.up);
+                transform.rotation = Quaternion.Slerp(transform.rotation, targetRot, Time.deltaTime * 5f);
+            }
+
+            investigateTimer -= Time.deltaTime;
+            if (investigateTimer <= 0f)
+            {
+                ResumePatrolAfterInvestigation();
+            }
+        }
+    }
+
+    private void ResumePatrolAfterInvestigation()
+    {
+        investigating = false;
+        investigatingArrived = false;
+        waiting = false;
+
+        if (agent != null && agent.enabled && agent.isOnNavMesh)
+        {
+            agent.isStopped = false;
+            agent.speed = patrolSpeed > 0.01f ? patrolSpeed : 1f;
+
+            if (targetPoint == null)
+            {
+                if (pointA != null && pointB != null)
+                {
+                    float distA = Vector3.Distance(transform.position, pointA.position);
+                    float distB = Vector3.Distance(transform.position, pointB.position);
+                    targetPoint = distA < distB ? pointA : pointB;
+                }
+                else
+                {
+                    targetPoint = pointB != null ? pointB : pointA;
+                }
+            }
+
+            if (targetPoint != null)
+            {
+                agent.SetDestination(targetPoint.position);
+            }
+        }
+
+        SetGuardMovingAnimation(true);
+
+        if (showDebugMessages)
+            Debug.Log("Guard finished investigating rock. Resuming normal patrol.", this);
     }
 
     // ---------------- CHASE ----------------

@@ -1,3 +1,4 @@
+
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -10,9 +11,8 @@ public class QuestManager : MonoBehaviour
     [Header("Quest Definitions")]
     [SerializeField] private QuestData[] availableQuests;
 
-    [Header("Autosave")]
-    [Tooltip("Quest IDs that trigger an autosave when completed. Leave empty to autosave on every quest.")]
-    [SerializeField] private string[] autosaveQuestIDs;
+    [Header("Scene Settings")]
+    [SerializeField] private string mainMenuScene = "Main Menu";
 
     private readonly Dictionary<string, QuestData> questDatabase =
         new Dictionary<string, QuestData>();
@@ -38,10 +38,8 @@ public class QuestManager : MonoBehaviour
     {
         if (Instance != null && Instance != this)
         {
-            // This scene's copy is about to be destroyed. Give its quests to
-            // the surviving manager first, so quests that only exist in this
-            // scene (like main_quest_04 in M3) are still found.
-            Instance.MergeQuests(availableQuests);
+            Instance.SetSceneQuests(availableQuests);
+            Instance.ApplyPendingSave();
 
             Destroy(gameObject);
             return;
@@ -49,11 +47,46 @@ public class QuestManager : MonoBehaviour
 
         Instance = this;
         DontDestroyOnLoad(gameObject);
-        BuildQuestDatabase();
 
-        // If the game was launched fresh and Continue was pressed,
-        // this new instance restores the saved progress.
+        BuildQuestDatabase();
         ApplyPendingSave();
+
+        SceneManager.sceneLoaded += OnSceneLoaded;
+    }
+
+    private void OnDestroy()
+    {
+        if (Instance == this)
+            SceneManager.sceneLoaded -= OnSceneLoaded;
+    }
+
+    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        bool loadedByContinue = SaveSystem.PendingSpawn != null;
+
+        ApplyPendingSave();
+
+        // Returning to the main menu clears the current session.
+        // The saved map checkpoint is NOT deleted.
+        if (scene.name == mainMenuScene)
+        {
+            ResetProgress();
+            return;
+        }
+
+        // Continue must not create or overwrite a checkpoint.
+        if (loadedByContinue)
+            return;
+
+        // A successful map transition starts the new map fresh.
+        if (SaveSystem.PendingMapTransition &&
+            scene.name == SaveSystem.PendingMapScene)
+        {
+            SaveSystem.ClearPendingMapTransition();
+            ResetProgress();
+
+            Debug.Log("New map loaded. Quest progress reset.");
+        }
     }
 
     private void BuildQuestDatabase()
@@ -65,7 +98,8 @@ public class QuestManager : MonoBehaviour
 
         foreach (QuestData quest in availableQuests)
         {
-            if (quest == null || string.IsNullOrWhiteSpace(quest.questID))
+            if (quest == null ||
+                string.IsNullOrWhiteSpace(quest.questID))
             {
                 Debug.LogWarning(
                     "A quest is missing its data or quest ID."
@@ -85,8 +119,47 @@ public class QuestManager : MonoBehaviour
         }
     }
 
-    // Adds any quests this manager doesn't know yet. Called by a scene's own
-    // QuestManager copy right before it destroys itself.
+    public void SetSceneQuests(QuestData[] sceneQuests)
+    {
+        if (sceneQuests == null || sceneQuests.Length == 0)
+            return;
+
+        var list = new List<QuestData>();
+
+        foreach (QuestData quest in sceneQuests)
+        {
+            if (quest == null || string.IsNullOrWhiteSpace(quest.questID))
+                continue;
+
+            bool idExists = false;
+            foreach (QuestData existing in list)
+            {
+                if (existing != null && existing.questID == quest.questID)
+                {
+                    idExists = true;
+                    break;
+                }
+            }
+
+            if (!idExists)
+                list.Add(quest);
+        }
+
+        if (list.Count == 0)
+            return;
+
+        availableQuests = list.ToArray();
+        BuildQuestDatabase();
+
+        // If an active quest from a previous scene does not belong to this scene, clear it
+        if (activeQuest != null && !questDatabase.ContainsKey(activeQuest.questID))
+        {
+            activeQuest = null;
+            currentObjectiveIndex = 0;
+            currentObjectiveProgress = 0;
+        }
+    }
+
     public void MergeQuests(QuestData[] newQuests)
     {
         if (newQuests == null)
@@ -99,17 +172,19 @@ public class QuestManager : MonoBehaviour
 
         foreach (QuestData quest in newQuests)
         {
-            if (quest == null || string.IsNullOrWhiteSpace(quest.questID))
+            if (quest == null ||
+                string.IsNullOrWhiteSpace(quest.questID))
                 continue;
 
             if (list.Contains(quest))
                 continue;
 
-            // Skip quests whose ID we already have from another asset.
             bool idExists = false;
+
             foreach (QuestData existing in list)
             {
-                if (existing != null && existing.questID == quest.questID)
+                if (existing != null &&
+                    existing.questID == quest.questID)
                 {
                     idExists = true;
                     break;
@@ -135,32 +210,39 @@ public class QuestManager : MonoBehaviour
     public SaveData CreateSaveData()
     {
         SaveData data = new SaveData();
+
         data.sceneName = SceneManager.GetActiveScene().name;
-        data.completedQuestIds = new List<string>(completedQuestIDs);
+        data.completedQuestIds =
+            new List<string>(completedQuestIDs);
 
         GameObject player = GameObject.FindWithTag("Player");
+
         if (player != null)
         {
             data.hasPosition = true;
             data.playerPosition = player.transform.position;
-            data.playerYRotation = player.transform.eulerAngles.y;
+            data.playerYRotation =
+                player.transform.eulerAngles.y;
         }
         else
         {
-            Debug.LogWarning("No GameObject tagged 'Player' found, position not saved.");
+            Debug.LogWarning(
+                "No GameObject tagged 'Player' found."
+            );
         }
 
         return data;
     }
 
-    // Restores progress from SaveSystem.Pending (set by the Continue button).
     public void ApplyPendingSave()
     {
         SaveData data = SaveSystem.Pending;
+
         if (data == null)
             return;
 
         completedQuestIDs.Clear();
+
         if (data.completedQuestIds != null)
         {
             foreach (string id in data.completedQuestIds)
@@ -172,25 +254,21 @@ public class QuestManager : MonoBehaviour
         currentObjectiveProgress = 0;
 
         SaveSystem.Pending = null;
-        Debug.Log($"Save restored: {completedQuestIDs.Count} completed quest(s).");
+
+        Debug.Log(
+            $"Save restored: {completedQuestIDs.Count} completed quest(s)."
+        );
     }
 
-    // Wipes all progress. Used by Start Game for a true new game.
     public void ResetProgress()
     {
         completedQuestIDs.Clear();
+
         activeQuest = null;
         currentObjectiveIndex = 0;
         currentObjectiveProgress = 0;
+
         Debug.Log("Quest progress reset.");
-    }
-
-    private bool ShouldAutosave(string questID)
-    {
-        if (autosaveQuestIDs == null || autosaveQuestIDs.Length == 0)
-            return true;
-
-        return Array.IndexOf(autosaveQuestIDs, questID) >= 0;
     }
 
     // ---------- Quest logic ----------
@@ -205,7 +283,8 @@ public class QuestManager : MonoBehaviour
             return false;
         }
 
-        if (!questDatabase.TryGetValue(questID, out QuestData quest))
+        if (!questDatabase.TryGetValue(
+            questID, out QuestData quest))
         {
             Debug.LogWarning($"Quest not found: {questID}");
             return false;
@@ -219,7 +298,8 @@ public class QuestManager : MonoBehaviour
 
         if (quest.prerequisiteQuestIDs != null)
         {
-            foreach (string prerequisiteID in quest.prerequisiteQuestIDs)
+            foreach (string prerequisiteID in
+                quest.prerequisiteQuestIDs)
             {
                 if (!completedQuestIDs.Contains(prerequisiteID))
                 {
@@ -232,7 +312,8 @@ public class QuestManager : MonoBehaviour
             }
         }
 
-        if (quest.objectives == null || quest.objectives.Length == 0)
+        if (quest.objectives == null ||
+            quest.objectives.Length == 0)
         {
             Debug.LogWarning(
                 $"Quest {quest.questTitle} has no objectives."
@@ -247,7 +328,11 @@ public class QuestManager : MonoBehaviour
         Debug.Log($"Quest started: {activeQuest.questTitle}");
 
         OnQuestStarted?.Invoke(activeQuest);
-        OnObjectiveChanged?.Invoke(activeQuest, currentObjectiveIndex);
+
+        OnObjectiveChanged?.Invoke(
+            activeQuest, currentObjectiveIndex
+        );
+
         OnObjectiveProgressChanged?.Invoke(
             activeQuest,
             currentObjectiveProgress,
@@ -264,7 +349,8 @@ public class QuestManager : MonoBehaviour
         if (activeQuest == null)
             return false;
 
-        if (currentObjectiveIndex >= activeQuest.objectives.Length)
+        if (currentObjectiveIndex >=
+            activeQuest.objectives.Length)
             return false;
 
         if (amount <= 0)
@@ -278,7 +364,8 @@ public class QuestManager : MonoBehaviour
         QuestObjectiveData objective =
             activeQuest.objectives[currentObjectiveIndex];
 
-        if (objective == null || objective.objectiveID != objectiveID)
+        if (objective == null ||
+            objective.objectiveID != objectiveID)
         {
             Debug.Log(
                 $"Current objective is: " +
@@ -287,7 +374,8 @@ public class QuestManager : MonoBehaviour
             return false;
         }
 
-        int requiredAmount = Mathf.Max(1, objective.requiredAmount);
+        int requiredAmount =
+            Mathf.Max(1, objective.requiredAmount);
 
         currentObjectiveProgress = Mathf.Min(
             currentObjectiveProgress + amount,
@@ -306,15 +394,12 @@ public class QuestManager : MonoBehaviour
         );
 
         if (currentObjectiveProgress >= requiredAmount)
-        {
             CompleteCurrentObjective();
-        }
 
         return true;
     }
 
     // Compatibility method for existing NPC scripts.
-    // The amount represents progress to add, not a total target.
     public bool CompleteCurrentObjective(
         string objectiveID,
         int amount = 1)
@@ -340,7 +425,9 @@ public class QuestManager : MonoBehaviour
             return;
         }
 
-        OnObjectiveChanged?.Invoke(quest, currentObjectiveIndex);
+        OnObjectiveChanged?.Invoke(
+            quest, currentObjectiveIndex
+        );
 
         QuestObjectiveData nextObjective =
             quest.objectives[currentObjectiveIndex];
@@ -358,29 +445,31 @@ public class QuestManager : MonoBehaviour
 
         completedQuestIDs.Add(finishedQuest.questID);
 
-        Debug.Log($"Quest completed: {finishedQuest.questTitle}");
+        Debug.Log(
+            $"Quest completed: {finishedQuest.questTitle}"
+        );
 
         activeQuest = null;
         currentObjectiveIndex = 0;
         currentObjectiveProgress = 0;
 
-        // Autosave when a listed questline is finished
-        if (ShouldAutosave(finishedQuest.questID))
-            SaveSystem.Save(CreateSaveData());
+        // IMPORTANT:
+        // Quest completion never saves the game.
 
         OnQuestCompleted?.Invoke(finishedQuest);
     }
 
-    // True if every prerequisite of this quest has been completed.
     public bool ArePrerequisitesMet(string questID)
     {
-        if (!questDatabase.TryGetValue(questID, out QuestData quest))
+        if (!questDatabase.TryGetValue(
+            questID, out QuestData quest))
             return true;
 
         if (quest.prerequisiteQuestIDs == null)
             return true;
 
-        foreach (string prerequisiteID in quest.prerequisiteQuestIDs)
+        foreach (string prerequisiteID in
+            quest.prerequisiteQuestIDs)
         {
             if (!completedQuestIDs.Contains(prerequisiteID))
                 return false;
@@ -394,10 +483,6 @@ public class QuestManager : MonoBehaviour
         return completedQuestIDs.Contains(questID);
     }
 
-    // How many objectives of this quest the UI should show right now.
-    // Active quest: completed objectives + the current one (later ones stay hidden).
-    // Completed quest: all of them.
-    // Not started: only the first one.
     public int GetVisibleObjectiveCount(QuestData quest)
     {
         if (quest == null || quest.objectives == null)
@@ -407,7 +492,12 @@ public class QuestManager : MonoBehaviour
             return quest.objectives.Length;
 
         if (quest == activeQuest)
-            return Mathf.Min(currentObjectiveIndex + 1, quest.objectives.Length);
+        {
+            return Mathf.Min(
+                currentObjectiveIndex + 1,
+                quest.objectives.Length
+            );
+        }
 
         return Mathf.Min(1, quest.objectives.Length);
     }

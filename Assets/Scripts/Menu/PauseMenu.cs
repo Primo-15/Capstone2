@@ -13,6 +13,7 @@ public class PauseMenu : MonoBehaviour
     [SerializeField] private Behaviour[] disableWhilePaused;
 
     private bool isPaused;
+    private readonly List<Behaviour> pausedPlayerBehaviours = new List<Behaviour>();
 
     private void Start()
     {
@@ -53,11 +54,14 @@ public class PauseMenu : MonoBehaviour
 
     private void Update()
     {
-        // Don't allow pausing during game over or a quick time event.
+        // Don't allow pausing during game over, a quick time event, or while M3Tooltip is open.
         if (GameOverScreen.Instance != null && GameOverScreen.Instance.IsGameOver)
             return;
 
         if (QuickTimeEvent.Instance != null && QuickTimeEvent.Instance.IsActive)
+            return;
+
+        if (PlayerStatsHUD.IsTooltipOpen)
             return;
 
         if (EscapePressed())
@@ -87,6 +91,7 @@ public class PauseMenu : MonoBehaviour
     public void Pause()
     {
         isPaused = true;
+        FreezePlayer();
         pausePanel.SetActive(true);
         Time.timeScale = 0f;
         SetGameplayInput(false);
@@ -97,20 +102,72 @@ public class PauseMenu : MonoBehaviour
     public void Resume()
     {
         isPaused = false;
+        UnfreezePlayer();
         pausePanel.SetActive(false);
         Time.timeScale = 1f;
         SetGameplayInput(true);
-        // Re-lock the cursor here only if your player uses a locked cursor
-        // Cursor.lockState = CursorLockMode.Locked;
-        // Cursor.visible = false;
     }
 
     public void GoToMainMenu()
     {
-        PlayerStats.ResetAll();   // fresh hearts and stamina for the next run
+        if (SceneManager.GetActiveScene().name == "M3" && PlayerStats.HasHearts)
+        {
+            // Keep current heart count in M3 so going to Main Menu -> Continue doesn't refill hearts.
+            SaveSystem.SaveM3Hearts(PlayerStats.Hearts);
+            PlayerStats.RefillStamina();
+        }
+        else
+        {
+            PlayerStats.ResetAll();   // fresh hearts and stamina for the next run
+        }
 
         Time.timeScale = 1f; // important, otherwise the main menu loads frozen
         SetGameplayInput(true);
+        UnfreezePlayer();
         SceneManager.LoadScene(mainMenuScene);
+    }
+
+    // Fully freezes the player (movement, look, input, hotbar actions) while paused.
+    private void FreezePlayer()
+    {
+        pausedPlayerBehaviours.Clear();
+
+        StarterAssets.StarterAssetsInputs[] inputs =
+            FindObjectsByType<StarterAssets.StarterAssetsInputs>(FindObjectsSortMode.None);
+        foreach (var i in inputs)
+        {
+            i.move = Vector2.zero;
+            i.look = Vector2.zero;
+            i.jump = false;
+            i.sprint = false;
+        }
+
+        DisableAll<StarterAssets.ThirdPersonController>();
+#if ENABLE_INPUT_SYSTEM
+        DisableAll<PlayerInput>();
+#endif
+        DisableAll<CursorAltToggle>();
+        DisableAll<M5HotbarController>();
+        DisableAll<DialogueMovementLock>();
+    }
+
+    private void DisableAll<T>() where T : Behaviour
+    {
+        foreach (T b in FindObjectsByType<T>(FindObjectsSortMode.None))
+        {
+            if (b != null && b.enabled)
+            {
+                b.enabled = false;
+                pausedPlayerBehaviours.Add(b);
+            }
+        }
+    }
+
+    private void UnfreezePlayer()
+    {
+        foreach (Behaviour b in pausedPlayerBehaviours)
+            if (b != null) b.enabled = true;
+
+        pausedPlayerBehaviours.Clear();
     }
 }

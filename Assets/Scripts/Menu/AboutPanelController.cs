@@ -1,10 +1,17 @@
 using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 public class AboutPanelController : MonoBehaviour
 {
     [SerializeField] private GameObject aboutPanel;
+
+    [Header("Book Visual (Assets/Prefabs/Book_CutOut3)")]
+    [SerializeField] private Sprite bookCutOutSprite;
+    [SerializeField] private Texture2D bookCutOutTexture;
 
     [Header("Animation")]
     [Tooltip("Duration of the open/close scale animation in seconds")]
@@ -16,15 +23,34 @@ public class AboutPanelController : MonoBehaviour
     [SerializeField] private Image dimOverlay;
 
     private Coroutine _animCoroutine;
+    private Sprite _runtimeBookSprite;
+    private bool _isOpen;
+
+#if UNITY_EDITOR
+    private void OnValidate()
+    {
+        if (bookCutOutSprite == null)
+        {
+            bookCutOutSprite = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Prefabs/Book_CutOut3.png");
+        }
+        if (bookCutOutTexture == null)
+        {
+            bookCutOutTexture = AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/Prefabs/Book_CutOut3.png");
+        }
+    }
+#endif
 
     private void Awake()
     {
+        ApplyBookVisuals();
+
         // Start hidden with scale 0 so animation starts from scratch each time
         if (aboutPanel != null)
         {
             aboutPanel.SetActive(false);
             aboutPanel.transform.localScale = Vector3.zero;
         }
+        _isOpen = false;
 
         if (dimOverlay != null)
         {
@@ -35,10 +61,78 @@ public class AboutPanelController : MonoBehaviour
         }
     }
 
+    private void ApplyBookVisuals()
+    {
+        if (aboutPanel == null)
+            return;
+
+        // Position AboutPanel on the left half of the screen matching the reference layout
+        RectTransform rect = aboutPanel.GetComponent<RectTransform>();
+        if (rect != null)
+        {
+            rect.anchorMin = new Vector2(0f, 0f);
+            rect.anchorMax = new Vector2(0.5f, 1f);
+            rect.anchoredPosition = Vector2.zero;
+            rect.sizeDelta = Vector2.zero;
+            rect.pivot = new Vector2(0.5f, 0.5f);
+        }
+
+        // Apply Book_CutOut image with untinted white color
+        Image panelImage = aboutPanel.GetComponent<Image>();
+        if (panelImage != null)
+        {
+            Sprite targetSprite = bookCutOutSprite;
+            if (targetSprite == null && bookCutOutTexture != null)
+            {
+                if (_runtimeBookSprite == null)
+                {
+                    _runtimeBookSprite = Sprite.Create(
+                        bookCutOutTexture,
+                        new Rect(0f, 0f, bookCutOutTexture.width, bookCutOutTexture.height),
+                        new Vector2(0.5f, 0.5f),
+                        100f);
+                }
+                targetSprite = _runtimeBookSprite;
+            }
+
+            if (targetSprite != null)
+            {
+                panelImage.sprite = targetSprite;
+            }
+
+            panelImage.color = Color.white;
+            panelImage.type = Image.Type.Simple;
+            panelImage.preserveAspect = false;
+        }
+
+        // Hide legacy overlay text and default close button so Book_CutOut is shown cleanly
+        for (int i = 0; i < aboutPanel.transform.childCount; i++)
+        {
+            Transform child = aboutPanel.transform.GetChild(i);
+            if (child != null && (child.name == "AboutText" || child.name == "CloseButton"))
+            {
+                child.gameObject.SetActive(false);
+            }
+        }
+    }
+
     public void OpenAbout()
     {
+        if (aboutPanel == null)
+            return;
+
+        // Clicking About while already open toggles the book closed
+        if (_isOpen && aboutPanel.activeSelf)
+        {
+            CloseAbout();
+            return;
+        }
+
+        ApplyBookVisuals();
+
         if (_animCoroutine != null) StopCoroutine(_animCoroutine);
 
+        _isOpen = true;
         aboutPanel.SetActive(true);
         if (dimOverlay != null) dimOverlay.gameObject.SetActive(true);
 
@@ -47,6 +141,10 @@ public class AboutPanelController : MonoBehaviour
 
     public void CloseAbout()
     {
+        if (aboutPanel == null || !aboutPanel.activeSelf)
+            return;
+
+        _isOpen = false;
         if (_animCoroutine != null) StopCoroutine(_animCoroutine);
         _animCoroutine = StartCoroutine(AnimateClose());
     }
@@ -57,7 +155,7 @@ public class AboutPanelController : MonoBehaviour
         float half = animDuration * 0.6f;
         float secondHalf = animDuration * 0.4f;
 
-        // Phase 1: scale 0 → overshoot
+        // Phase 1: scale 0 -> overshoot
         while (elapsed < half)
         {
             elapsed += Time.unscaledDeltaTime;
@@ -75,7 +173,7 @@ public class AboutPanelController : MonoBehaviour
             yield return null;
         }
 
-        // Phase 2: overshoot → 1
+        // Phase 2: overshoot -> 1
         elapsed = 0f;
         while (elapsed < secondHalf)
         {
