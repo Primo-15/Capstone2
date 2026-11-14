@@ -38,8 +38,12 @@ public class QuestManager : MonoBehaviour
     {
         if (Instance != null && Instance != this)
         {
-            Instance.SetSceneQuests(availableQuests);
-            Instance.ApplyPendingSave();
+            // Only adopt quests from the active scene (ignore additive background scenes like M5 during M4 cinematics)
+            if (gameObject.scene == SceneManager.GetActiveScene())
+            {
+                Instance.SetSceneQuests(availableQuests);
+                Instance.ApplyPendingSave();
+            }
 
             Destroy(gameObject);
             return;
@@ -62,6 +66,9 @@ public class QuestManager : MonoBehaviour
 
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
+        if (mode == LoadSceneMode.Additive)
+            return;
+
         bool loadedByContinue = SaveSystem.PendingSpawn != null;
 
         ApplyPendingSave();

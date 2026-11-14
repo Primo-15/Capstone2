@@ -1,7 +1,8 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class QuestTrackerUI : MonoBehaviour
 {
@@ -28,8 +29,26 @@ public class QuestTrackerUI : MonoBehaviour
     private readonly List<TMP_Text> objectiveTexts =
         new List<TMP_Text>();
 
+    private void Awake()
+    {
+        if (gameObject.scene != SceneManager.GetActiveScene())
+        {
+            if (questTrackerPanel != null)
+                questTrackerPanel.SetActive(false);
+            gameObject.SetActive(false);
+        }
+    }
+
     private void Start()
     {
+        if (gameObject.scene != SceneManager.GetActiveScene())
+        {
+            if (questTrackerPanel != null)
+                questTrackerPanel.SetActive(false);
+            gameObject.SetActive(false);
+            return;
+        }
+
         questManager = QuestManager.Instance;
 
         if (questManager == null)

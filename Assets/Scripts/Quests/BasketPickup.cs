@@ -39,7 +39,7 @@ public class BasketPickup : MonoBehaviour
 
     private void Update()
     {
-        if (pickedUp || player == null)
+        if (pickedUp || player == null || MapVideoController.IsVideoPlaying || M1DisclaimerUI.IsDisclaimerOpen || PlayerStatsHUD.IsTooltipOpen)
             return;
 
         bool canPick = IsObjectiveActive() &&

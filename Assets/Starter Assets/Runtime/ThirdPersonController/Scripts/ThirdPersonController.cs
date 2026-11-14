@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 #if ENABLE_INPUT_SYSTEM
 using UnityEngine.InputSystem;
 #endif
@@ -31,6 +31,9 @@ namespace StarterAssets
         public AudioClip LandingAudioClip;
         public AudioClip[] FootstepAudioClips;
         [Range(0, 1)] public float FootstepAudioVolume = 0.5f;
+
+        [Tooltip("Mouse look sensitivity multiplier (0.1 to 10.0)")]
+        [Range(0.1f, 10.0f)] public float MouseSensitivity = 1.0f;
 
         [Space(10)]
         [Tooltip("The height the player can jump")]
@@ -202,7 +205,7 @@ namespace StarterAssets
             if (_input.look.sqrMagnitude >= _threshold && !LockCameraPosition)
             {
                 //Don't multiply mouse input by Time.deltaTime;
-                float deltaTimeMultiplier = IsCurrentDeviceMouse ? 1.0f : Time.deltaTime;
+                float deltaTimeMultiplier = (IsCurrentDeviceMouse ? 1.0f : Time.deltaTime) * MouseSensitivity;
 
                 _cinemachineTargetYaw += _input.look.x * deltaTimeMultiplier;
                 _cinemachineTargetPitch += _input.look.y * deltaTimeMultiplier;
@@ -378,8 +381,60 @@ namespace StarterAssets
                 GroundedRadius);
         }
 
+        public void StopMovementImmediately()
+        {
+            _speed = 0.0f;
+            _animationBlend = 0.0f;
+            _rotationVelocity = 0.0f;
+            if (_verticalVelocity > 0.0f)
+            {
+                _verticalVelocity = -2.0f;
+            }
+
+            if (_input == null)
+            {
+                _input = GetComponent<StarterAssetsInputs>();
+            }
+
+            if (_input != null)
+            {
+                _input.move = Vector2.zero;
+                _input.look = Vector2.zero;
+                _input.jump = false;
+                _input.sprint = false;
+            }
+
+            if (!_hasAnimator)
+            {
+                _hasAnimator = TryGetComponent(out _animator);
+            }
+
+            if (_hasAnimator && _animator != null)
+            {
+                if (_animIDSpeed == 0)
+                {
+                    AssignAnimationIDs();
+                }
+
+                _animator.SetFloat(_animIDSpeed, 0.0f);
+                _animator.SetFloat(_animIDMotionSpeed, 0.0f);
+                _animator.SetBool(_animIDJump, false);
+                _animator.SetBool(_animIDFreeFall, false);
+            }
+        }
+
+        private void OnDisable()
+        {
+            StopMovementImmediately();
+        }
+
         private void OnFootstep(AnimationEvent animationEvent)
         {
+            if (!enabled || _speed <= 0.05f || (_input != null && _input.move == Vector2.zero))
+            {
+                return;
+            }
+
             if (animationEvent.animatorClipInfo.weight > 0.5f)
             {
                 if (FootstepAudioClips.Length > 0)
@@ -392,6 +447,11 @@ namespace StarterAssets
 
         private void OnLand(AnimationEvent animationEvent)
         {
+            if (!enabled)
+            {
+                return;
+            }
+
             if (animationEvent.animatorClipInfo.weight > 0.5f)
             {
                 AudioSource.PlayClipAtPoint(LandingAudioClip, transform.TransformPoint(_controller.center), FootstepAudioVolume);

@@ -11,12 +11,27 @@ public class PauseMenu : MonoBehaviour
     [SerializeField] private string mainMenuScene = "Main Menu";
     [SerializeField] private string followCameraName = "PlayerFollowCamera";
     [SerializeField] private Behaviour[] disableWhilePaused;
+    [SerializeField] private MainMenuConfirm mainMenuConfirm;
+    [SerializeField] private MenuSettings menuSettings;
 
     private bool isPaused;
     private readonly List<Behaviour> pausedPlayerBehaviours = new List<Behaviour>();
+    private readonly List<M5HotbarController> hiddenHotbars = new List<M5HotbarController>();
 
     private void Start()
     {
+        if (mainMenuConfirm == null && transform.root != null)
+            mainMenuConfirm = transform.root.GetComponentInChildren<MainMenuConfirm>(true);
+
+        if (mainMenuConfirm != null)
+            mainMenuConfirm.CloseConfirmationWindow();
+
+        if (menuSettings == null && transform.root != null)
+            menuSettings = transform.root.GetComponentInChildren<MenuSettings>(true);
+
+        if (menuSettings != null)
+            menuSettings.CloseSettings();
+
         pausePanel.SetActive(false);
         AutoFindGameplayInput();
     }
@@ -54,14 +69,17 @@ public class PauseMenu : MonoBehaviour
 
     private void Update()
     {
-        // Don't allow pausing during game over, a quick time event, or while M3Tooltip is open.
+        // Don't allow pausing during game over, a quick time event, while a tooltip is open, or while a video is playing.
         if (GameOverScreen.Instance != null && GameOverScreen.Instance.IsGameOver)
             return;
 
         if (QuickTimeEvent.Instance != null && QuickTimeEvent.Instance.IsActive)
             return;
 
-        if (PlayerStatsHUD.IsTooltipOpen)
+        if (PlayerStatsHUD.IsTooltipOpen || M1DisclaimerUI.IsDisclaimerOpen)
+            return;
+
+        if (MapVideoController.IsVideoPlaying)
             return;
 
         if (EscapePressed())
@@ -90,7 +108,15 @@ public class PauseMenu : MonoBehaviour
 
     public void Pause()
     {
+        if (MapVideoController.IsVideoPlaying || M1DisclaimerUI.IsDisclaimerOpen || PlayerStatsHUD.IsTooltipOpen)
+            return;
+
         isPaused = true;
+        SceneMusic.NotifyPaused(true);
+        if (mainMenuConfirm != null)
+            mainMenuConfirm.CloseConfirmationWindow();
+        if (menuSettings != null)
+            menuSettings.CloseSettings();
         FreezePlayer();
         pausePanel.SetActive(true);
         Time.timeScale = 0f;
@@ -102,6 +128,11 @@ public class PauseMenu : MonoBehaviour
     public void Resume()
     {
         isPaused = false;
+        SceneMusic.NotifyPaused(false);
+        if (mainMenuConfirm != null)
+            mainMenuConfirm.CloseConfirmationWindow();
+        if (menuSettings != null)
+            menuSettings.CloseSettings();
         UnfreezePlayer();
         pausePanel.SetActive(false);
         Time.timeScale = 1f;
@@ -110,6 +141,25 @@ public class PauseMenu : MonoBehaviour
 
     public void GoToMainMenu()
     {
+        if (mainMenuConfirm == null && transform.root != null)
+            mainMenuConfirm = transform.root.GetComponentInChildren<MainMenuConfirm>(true);
+
+        if (mainMenuConfirm != null && !mainMenuConfirm.IsBypassingConfirmation)
+        {
+            mainMenuConfirm.OnMainMenuButtonClicked();
+            return;
+        }
+
+        ExecuteGoToMainMenu();
+    }
+
+    public void ExecuteGoToMainMenu()
+    {
+        if (QuestManager.Instance != null)
+        {
+            QuestManager.Instance.ResetProgress();
+        }
+
         if (SceneManager.GetActiveScene().name == "M3" && PlayerStats.HasHearts)
         {
             // Keep current heart count in M3 so going to Main Menu -> Continue doesn't refill hearts.
@@ -149,6 +199,22 @@ public class PauseMenu : MonoBehaviour
         DisableAll<CursorAltToggle>();
         DisableAll<M5HotbarController>();
         DisableAll<DialogueMovementLock>();
+
+        // Hide the inventory hotbar so it never draws over the pause menu.
+        foreach (M5HotbarController hb in FindObjectsByType<M5HotbarController>(FindObjectsSortMode.None))
+        {
+            if (hb == null) continue;
+            hb.SetHotbarUIHidden(true);
+            if (!hiddenHotbars.Contains(hb)) hiddenHotbars.Add(hb);
+        }
+    }
+
+    private void RestoreHotbars()
+    {
+        foreach (M5HotbarController hb in hiddenHotbars)
+            if (hb != null) hb.SetHotbarUIHidden(false);
+
+        hiddenHotbars.Clear();
     }
 
     private void DisableAll<T>() where T : Behaviour
@@ -165,6 +231,8 @@ public class PauseMenu : MonoBehaviour
 
     private void UnfreezePlayer()
     {
+        RestoreHotbars();
+
         foreach (Behaviour b in pausedPlayerBehaviours)
             if (b != null) b.enabled = true;
 

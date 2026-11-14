@@ -18,11 +18,16 @@ public class SaveData
 
 public static class SaveSystem
 {
+    public const string GameCompletedPrefKey = "GameCompleted";
+
     private static string FilePath =>
         Path.Combine(
             Application.persistentDataPath,
             "save.json"
         );
+
+    // Chapter Replay Mode flag (true only when replaying a chapter from Chapter Selection)
+    public static bool IsChapterReplayMode { get; set; } = false;
 
     // Quest progress to restore.
     public static SaveData Pending;
@@ -38,6 +43,50 @@ public static class SaveSystem
     public static bool HasSave()
     {
         return File.Exists(FilePath);
+    }
+
+    public static bool IsGameCompleted()
+    {
+        return PlayerPrefs.GetInt(GameCompletedPrefKey, 0) == 1;
+    }
+
+    public static void SetGameCompleted(bool completed = true)
+    {
+        if (completed)
+        {
+            PlayerPrefs.SetInt(GameCompletedPrefKey, 1);
+        }
+        else
+        {
+            PlayerPrefs.DeleteKey(GameCompletedPrefKey);
+        }
+
+        PlayerPrefs.Save();
+        Debug.Log($"[SaveSystem] Game completion status set to: {completed}");
+    }
+
+    public static void DeleteAllGameplaySaveData()
+    {
+        Delete();
+        IsChapterReplayMode = false;
+
+        PlayerPrefs.DeleteKey(GameCompletedPrefKey);
+        MainMenuConfirm.SetNeverShowAgainEnabled(false);
+        PlayerPrefs.Save();
+
+        PlayerStats.ResetAll();
+
+        if (QuestManager.Instance != null)
+        {
+            QuestManager.Instance.ResetProgress();
+        }
+
+        if (InventoryManager.Instance != null)
+        {
+            InventoryManager.Instance.ClearInventory();
+        }
+
+        Debug.Log("[SaveSystem] All gameplay save data deleted (Settings preferences preserved).");
     }
 
     public static void Save(SaveData data)

@@ -3819,6 +3819,9 @@ MonoBehaviour:
   loseSightTime: 3
   catchDistance: 1.5
   stunDuration: 3
+  distractionRadius: 4.5
+  investigateDuration: 2
+  investigateStoppingDistance: 0.6
   showDebugMessages: 1
 --- !u!195 &949497752
 NavMeshAgent:
@@ -5721,6 +5724,9 @@ MonoBehaviour:
   loseSightTime: 3
   catchDistance: 1.5
   stunDuration: 3
+  distractionRadius: 4.5
+  investigateDuration: 2
+  investigateStoppingDistance: 0.6
   showDebugMessages: 1
 --- !u!195 &1296035260
 NavMeshAgent:
@@ -9691,6 +9697,57 @@ MonoBehaviour:
   m_FlexibleWidth: -1
   m_FlexibleHeight: -1
   m_LayoutPriority: 1
+--- !u!1 &9200000001
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 9200000002}
+  - component: {fileID: 9200000003}
+  m_Layer: 0
+  m_Name: SceneMusic
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &9200000002
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9200000001}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &9200000003
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9200000001}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7c1d4e2a9b3f4a6e8d5c0f1b2a3e4d51, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SceneMusic
+  backgroundMusic: {fileID: 8300000, guid: bbca741aa5f96b9449ca2687eac0e888, type: 3}
+  backgroundVolume: 0.6
+  qteMusic: {fileID: 8300000, guid: bb98254af31260246ae5433c694d07b0, type: 3}
+  qteHitPass: {fileID: 8300000, guid: d23c4a7afa5488e4191e9c8b2e08bdf4, type: 3}
+  qteHitFail: {fileID: 8300000, guid: 2a80da996e8ba7c4e95156e429decfec, type: 3}
+  qteMusicVolume: 0.7
+  sfxVolume: 1
 --- !u!1001 &1825763740867223932
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -10326,6 +10383,59 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 54cc5d471984967428cc6439faa89ea9, type: 3}
+--- !u!1 &9300000001
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 9300000002}
+  - component: {fileID: 9300000003}
+  m_Layer: 0
+  m_Name: MapVideoController
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &9300000002
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9300000001}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &9300000003
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9300000001}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8d2e5f3b1c4a7e9d0f2b3c4d5e6a7b8c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MapVideoController
+  introVideo: {fileID: 32900000, guid: 51fb19b8caa2c9a48b77252cd904dc21, type: 3}
+  outroVideo: {fileID: 0}
+  playIntroOnStart: 1
+  muteBackgroundMusicDuringVideo: 1
+  videoCanvas: {fileID: 0}
+  videoRawImage: {fileID: 0}
+  aspectRatioFitter: {fileID: 0}
+  videoPlayer: {fileID: 0}
+  videoAudioSource: {fileID: 0}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
@@ -10357,3 +10467,5 @@ SceneRoots:
   - {fileID: 1431225376}
   - {fileID: 723427564}
   - {fileID: 1014180675}
+  - {fileID: 9200000002}
+  - {fileID: 9300000002}

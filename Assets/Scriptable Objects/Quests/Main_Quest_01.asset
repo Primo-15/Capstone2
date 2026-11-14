@@ -24,10 +24,10 @@ MonoBehaviour:
     objectiveType: 0
     requiredAmount: 1
   - objectiveID: obtain_the_gulay
-    description: Bilhin ang mga sangkap kay Aling Elena
+    description: Buy the aromatics from Aling Elena
     objectiveType: 1
     requiredAmount: 1
   - objectiveID: return_to_Inay
-    description: Ibigay ang mga sangkap na gulay
+    description: Give the aromatics to Inay
     objectiveType: 0
     requiredAmount: 1

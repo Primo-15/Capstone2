@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: Main_Quest_02
   m_EditorClassIdentifier: Assembly-CSharp::QuestData
   questID: main_quest_02
-  questTitle: Mamitas sa burol
-  questDescription: Sumama kay Rosa sa pamimitas ng mga bulaklak
+  questTitle: Pick fruits at the hill
+  questDescription: Go with Rosa
   questType: 0
   prerequisiteQuestIDs:
   - main_quest_01
@@ -28,10 +28,10 @@ MonoBehaviour:
     objectiveType: 0
     requiredAmount: 1
   - objectiveID: Find_a_basket
-    description: Hanapin ang basket
+    description: Find the Basket
     objectiveType: 1
     requiredAmount: 1
   - objectiveID: Meet_Rosa
-    description: Makipagkita kay Rosa sa burol
+    description: Meet up with Rosa
     objectiveType: 2
     requiredAmount: 1

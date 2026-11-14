@@ -335,6 +335,11 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 4275732206438107431, guid: 128b428f77c3a824e9266ae30fb9aeef, type: 3}
   m_PrefabInstance: {fileID: 60782773}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &100852408 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 7558087666839051825, guid: 91abc52970d33db48b2c0a95ac954181, type: 3}
+  m_PrefabInstance: {fileID: 2396561620304104075}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &121774831
 GameObject:
   m_ObjectHideFlags: 0
@@ -1822,6 +1827,39 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 7181104078959903883, guid: 91abc52970d33db48b2c0a95ac954181, type: 3}
   m_PrefabInstance: {fileID: 2396561620304104075}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &725164998
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 100852408}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ea54a8163d38cb441a968d6f9ae28dde, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::QuestPointerTarget
+  questID: 
+  objectiveIDs:
+  - talk_to_member1
+  markBeforeQuestStarts: 0
+  showAfterQuestID: 
+  pointAt: {fileID: 0}
+  autoHeight: 1
+  heightAbove: 2.2
+  color: {r: 0.3089623, g: 0.47692502, b: 0.5, a: 1}
+  label: 
+  completeWhenReached: 0
+  reachRadius: 3
+  requiredItemID: 
+  removeItem: 1
+  pressKeyToComplete: 0
+  key: 101
+  prompt: {fileID: 0}
+  showWhenDone: []
+  onCompleted:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!114 &744850189 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 1748539264608370709, guid: 28ed210d16fe0db40a8c6d6f27e7bdaa, type: 3}
@@ -5578,7 +5616,10 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 7558087666839051825, guid: 91abc52970d33db48b2c0a95ac954181, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 725164998}
   m_SourcePrefab: {fileID: 100100000, guid: 91abc52970d33db48b2c0a95ac954181, type: 3}
 --- !u!1001 &2530791914814239834
 PrefabInstance:
@@ -5923,8 +5964,16 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 1612036551}
     - target: {fileID: 3971650353397330340, guid: 2e123dcc5e6d76e4f8fee027224840dd, type: 3}
+      propertyPath: unlockAfterObjectiveID
+      value: talk_to_member1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3971650353397330340, guid: 2e123dcc5e6d76e4f8fee027224840dd, type: 3}
       propertyPath: dialogueLines.Array.size
       value: 22
+      objectReference: {fileID: 0}
+    - target: {fileID: 3971650353397330340, guid: 2e123dcc5e6d76e4f8fee027224840dd, type: 3}
+      propertyPath: inProgressLines.Array.size
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3971650353397330340, guid: 2e123dcc5e6d76e4f8fee027224840dd, type: 3}
       propertyPath: 'dialogueLines.Array.data[0]'
@@ -6016,12 +6065,16 @@ PrefabInstance:
       value: Alright, lead us to your village
       objectReference: {fileID: 0}
     - target: {fileID: 3971650353397330340, guid: 2e123dcc5e6d76e4f8fee027224840dd, type: 3}
+      propertyPath: 'inProgressLines.Array.data[0]'
+      value: Who are you? who sent you in?
+      objectReference: {fileID: 0}
+    - target: {fileID: 3971650353397330340, guid: 2e123dcc5e6d76e4f8fee027224840dd, type: 3}
       propertyPath: questNotStartedLines.Array.size
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 3971650353397330340, guid: 2e123dcc5e6d76e4f8fee027224840dd, type: 3}
       propertyPath: 'questNotStartedLines.Array.data[0]'
-      value: 
+      value: You are a new face, who sent you in?
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -6030,6 +6083,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 2398218418504938832, guid: 2e123dcc5e6d76e4f8fee027224840dd, type: 3}
       insertIndex: -1
       addedObject: {fileID: 3924472838155776227}
+    - targetCorrespondingSourceObject: {fileID: 2398218418504938832, guid: 2e123dcc5e6d76e4f8fee027224840dd, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 3924472838155776228}
   m_SourcePrefab: {fileID: 100100000, guid: 2e123dcc5e6d76e4f8fee027224840dd, type: 3}
 --- !u!4 &3924472838155776224 stripped
 Transform:
@@ -6059,6 +6115,39 @@ CapsuleCollider:
   m_Height: 2.4545426
   m_Direction: 1
   m_Center: {x: 0, y: 0.7272713, z: 0}
+--- !u!114 &3924472838155776228
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1323024409}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ea54a8163d38cb441a968d6f9ae28dde, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::QuestPointerTarget
+  questID: 
+  objectiveIDs:
+  - talk_to_leader
+  markBeforeQuestStarts: 0
+  showAfterQuestID: 
+  pointAt: {fileID: 0}
+  autoHeight: 1
+  heightAbove: 2.2
+  color: {r: 0.049394794, g: 0.6981132, b: 0.23325941, a: 1}
+  label: 
+  completeWhenReached: 0
+  reachRadius: 3
+  requiredItemID: 
+  removeItem: 1
+  pressKeyToComplete: 0
+  key: 101
+  prompt: {fileID: 0}
+  showWhenDone: []
+  onCompleted:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!1001 &4035906665174430630
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -6485,6 +6574,59 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 3a836f4b23b142a44a0f599006e5912e, type: 3}
+--- !u!1 &9300000001
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 9300000002}
+  - component: {fileID: 9300000003}
+  m_Layer: 0
+  m_Name: MapVideoController
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &9300000002
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9300000001}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &9300000003
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9300000001}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8d2e5f3b1c4a7e9d0f2b3c4d5e6a7b8c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MapVideoController
+  introVideo: {fileID: 32900000, guid: 8b0927ef68c479a46b5c135be0082304, type: 3}
+  outroVideo: {fileID: 0}
+  playIntroOnStart: 1
+  muteBackgroundMusicDuringVideo: 1
+  videoCanvas: {fileID: 0}
+  videoRawImage: {fileID: 0}
+  aspectRatioFitter: {fileID: 0}
+  videoPlayer: {fileID: 0}
+  videoAudioSource: {fileID: 0}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
@@ -6510,3 +6652,4 @@ SceneRoots:
   - {fileID: 4198759673141048010}
   - {fileID: 1612036552}
   - {fileID: 554056725}
+  - {fileID: 9300000002}

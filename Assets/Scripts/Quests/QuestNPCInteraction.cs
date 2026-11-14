@@ -51,7 +51,7 @@ public class QuestNPCInteraction : MonoBehaviour
     [TextArea(2, 4)]
     [SerializeField] private string[] completedQuestLines;
 
-    [Tooltip("Shown when the player talks to this NPC before the quest is available: either the NPC that starts it hasn't been talked to yet, or (on an NPC that starts a quest) the prerequisite quests aren't finished.")]
+    [Tooltip("Shown when the player talks to this NPC before the quest is available: either the NPC that starts it hasn't been talked to yet, or (on an NPC that starts a quest) the prerequisite quests aren't finished. Also shown when 'Unlock After Objective ID' isn't completed yet.")]
     [TextArea(2, 4)]
     [SerializeField] private string[] questNotStartedLines;
 
@@ -94,6 +94,9 @@ public class QuestNPCInteraction : MonoBehaviour
     [SerializeField] private bool requiresAlingElenaInteraction;
     [SerializeField] private string alingElenaObjectiveID;
     [SerializeField] private string requiredItemForDialogue;
+
+    [Tooltip("Optional. This NPC's real conversation (and her objective) stays locked until this objective is completed. Until then she only says her 'Quest Not Started Lines'. Example: on Joselina, put talk_to_member1.")]
+    [SerializeField] private string unlockAfterObjectiveID;
 
     [Header("Item Settings")]
     [SerializeField] private string rewardItemID;
@@ -163,6 +166,9 @@ public class QuestNPCInteraction : MonoBehaviour
 
             return;
         }
+
+        if (MapVideoController.IsVideoPlaying || M1DisclaimerUI.IsDisclaimerOpen || PlayerStatsHUD.IsTooltipOpen)
+            return;
 
         if (Input.GetKeyDown(interactionKey))
         {
@@ -254,6 +260,20 @@ public class QuestNPCInteraction : MonoBehaviour
             quest.questID == questID &&
             manager.CurrentObjectiveIndex < quest.objectives.Length)
         {
+            // This NPC is still locked behind an earlier objective
+            // (e.g. Joselina before the player has talked to Ricardo).
+            // Show the "not available yet" lines instead of her real conversation.
+            if (IsLockedByObjective(manager))
+            {
+                if (questNotStartedLines != null && questNotStartedLines.Length > 0)
+                    return questNotStartedLines;
+
+                if (inProgressLines != null && inProgressLines.Length > 0)
+                    return inProgressLines;
+
+                return null;
+            }
+
             string currentObjective =
                 quest.objectives[manager.CurrentObjectiveIndex].objectiveID;
 
@@ -336,6 +356,40 @@ public class QuestNPCInteraction : MonoBehaviour
         for (int i = 0; i < quest.objectives.Length; i++)
         {
             if (quest.objectives[i].objectiveID == deliveryObjectiveID)
+                return manager.CurrentObjectiveIndex > i;
+        }
+
+        return false;
+    }
+
+    // True while this NPC is locked behind "Unlock After Objective ID"
+    // and that objective hasn't been completed yet.
+    private bool IsLockedByObjective(QuestManager manager)
+    {
+        if (string.IsNullOrWhiteSpace(unlockAfterObjectiveID))
+            return false;
+
+        if (manager == null)
+            return false;
+
+        return !HasCompletedObjective(manager, unlockAfterObjectiveID);
+    }
+
+    // True if the whole quest is finished, or the quest has moved
+    // past the objective with this ID.
+    private bool HasCompletedObjective(QuestManager manager, string id)
+    {
+        if (manager.IsQuestCompleted(questID))
+            return true;
+
+        QuestData quest = manager.ActiveQuest;
+
+        if (quest == null || quest.questID != questID)
+            return false;
+
+        for (int i = 0; i < quest.objectives.Length; i++)
+        {
+            if (quest.objectives[i].objectiveID == id)
                 return manager.CurrentObjectiveIndex > i;
         }
 
@@ -546,6 +600,16 @@ public class QuestNPCInteraction : MonoBehaviour
                 $"{npcName}: I have nothing for you right now. " +
                 $"(my questID = '{questID}', active quest = " +
                 $"'{(manager.ActiveQuest != null ? manager.ActiveQuest.questID : "none")}')"
+            );
+            return;
+        }
+
+        // Locked behind an earlier objective: talking to this NPC
+        // must not advance the quest, give items, or take items yet.
+        if (IsLockedByObjective(manager))
+        {
+            Debug.Log(
+                $"{npcName}: Locked until '{unlockAfterObjectiveID}' is completed."
             );
             return;
         }

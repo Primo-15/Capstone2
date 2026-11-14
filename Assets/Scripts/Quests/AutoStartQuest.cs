@@ -1,5 +1,6 @@
 using System.Collections;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class AutoStartQuest : MonoBehaviour
 {
@@ -7,6 +8,9 @@ public class AutoStartQuest : MonoBehaviour
 
     private IEnumerator Start()
     {
+        if (gameObject.scene != SceneManager.GetActiveScene())
+            yield break;
+
         // Wait a moment so the quest HUD and log have subscribed to the events.
         yield return null;
         yield return new WaitForSecondsRealtime(0.1f);

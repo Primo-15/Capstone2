@@ -96,6 +96,11 @@ public class QuestLogUI : MonoBehaviour
 
     private void Update()
     {
+        if (MapVideoController.IsVideoPlaying || M1DisclaimerUI.IsDisclaimerOpen || PlayerStatsHUD.IsTooltipOpen || Time.timeScale == 0f)
+        {
+            return;
+        }
+
         if (Input.GetKeyDown(toggleKey))
         {
             bool shouldOpen = !questLogPanel.activeSelf;

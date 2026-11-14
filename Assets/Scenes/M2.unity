@@ -545,6 +545,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 1606037529433101695, guid: 4a2f1fe7e36596049b29f061a77ff748, type: 3}
       insertIndex: -1
       addedObject: {fileID: 63957816}
+    - targetCorrespondingSourceObject: {fileID: 1606037529433101695, guid: 4a2f1fe7e36596049b29f061a77ff748, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 63957817}
   m_SourcePrefab: {fileID: 100100000, guid: 4a2f1fe7e36596049b29f061a77ff748, type: 3}
 --- !u!4 &63957814 stripped
 Transform:
@@ -580,7 +583,7 @@ MonoBehaviour:
   playerNameColor: '#4DA6FF'
   dialogueLines:
   - I got to go find my parents Isay
-  - You should go see yours too
+  - You should go ahead to see yours too
   finishedBuyingLines: []
   objectiveDialogues: []
   missingItemLines: []
@@ -596,6 +599,7 @@ MonoBehaviour:
   requiresAlingElenaInteraction: 0
   alingElenaObjectiveID: 
   requiredItemForDialogue: 
+  unlockAfterObjectiveID: 
   rewardItemID: 
   requiredItemID: 
   noRepeatAfterDelivery: 0
@@ -606,6 +610,24 @@ MonoBehaviour:
   cutsceneAfterFirstTalk: {fileID: 0}
   dialogueCinematic: {fileID: 0}
   cinematicStartLine: 12
+--- !u!114 &63957817
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 63957815}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f28b792e7ea64f14f9176380f57a4f14, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NextNPCLocation
+  questID: main_quest_02
+  objectiveID: Find_a_basket
+  targetPosition: {x: 71.903435, y: 5.0530005, z: 19.795298}
+  targetRotation: {x: 0, y: 239.6109, z: 0}
+  snapToTerrain: 1
+  groundOffset: 0
 --- !u!1 &128027596
 GameObject:
   m_ObjectHideFlags: 0
@@ -2635,7 +2657,7 @@ MonoBehaviour:
   playerNameColor: '#4DA6FF'
   dialogueLines:
   - Isay I need your help
-  - I lost my son Watot
+  - I lost my son Pepe
   - I don't know where to find him
   finishedBuyingLines: []
   objectiveDialogues: []
@@ -2645,7 +2667,7 @@ MonoBehaviour:
   alreadyReceivedLines: []
   inProgressLines: []
   repeatLines:
-  - Please find Watot
+  - Please find Pepe
   questID: main_quest_03
   startsQuest: 0
   objectiveID: Talk_to_Aling_Elena
@@ -2653,6 +2675,7 @@ MonoBehaviour:
   requiresAlingElenaInteraction: 0
   alingElenaObjectiveID: 
   requiredItemForDialogue: 
+  unlockAfterObjectiveID: 
   rewardItemID: 
   requiredItemID: 
   noRepeatAfterDelivery: 0
@@ -4133,6 +4156,7 @@ MonoBehaviour:
   requiresAlingElenaInteraction: 0
   alingElenaObjectiveID: 
   requiredItemForDialogue: 
+  unlockAfterObjectiveID: 
   rewardItemID: 
   requiredItemID: 
   noRepeatAfterDelivery: 0
@@ -4774,6 +4798,7 @@ MonoBehaviour:
   requiresAlingElenaInteraction: 0
   alingElenaObjectiveID: 
   requiredItemForDialogue: 
+  unlockAfterObjectiveID: 
   rewardItemID: 
   requiredItemID: sangkap
   noRepeatAfterDelivery: 0
@@ -5185,6 +5210,7 @@ MonoBehaviour:
   requiresAlingElenaInteraction: 0
   alingElenaObjectiveID: 
   requiredItemForDialogue: 
+  unlockAfterObjectiveID: 
   rewardItemID: Knife
   requiredItemID: 
   noRepeatAfterDelivery: 0
@@ -5708,48 +5734,52 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 3888611276550310276, guid: 03fb6f49d936d5e429b639fccb1f29a6, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 21.148
+      value: 20.982
       objectReference: {fileID: 0}
     - target: {fileID: 3888611276550310276, guid: 03fb6f49d936d5e429b639fccb1f29a6, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0.074
+      value: 0.19
       objectReference: {fileID: 0}
     - target: {fileID: 3888611276550310276, guid: 03fb6f49d936d5e429b639fccb1f29a6, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -17.322
+      value: -17.45
       objectReference: {fileID: 0}
     - target: {fileID: 3888611276550310276, guid: 03fb6f49d936d5e429b639fccb1f29a6, type: 3}
       propertyPath: m_LocalRotation.w
-      value: 0.89689916
+      value: 0.6213965
       objectReference: {fileID: 0}
     - target: {fileID: 3888611276550310276, guid: 03fb6f49d936d5e429b639fccb1f29a6, type: 3}
       propertyPath: m_LocalRotation.x
-      value: -0
+      value: -0.64675707
       objectReference: {fileID: 0}
     - target: {fileID: 3888611276550310276, guid: 03fb6f49d936d5e429b639fccb1f29a6, type: 3}
       propertyPath: m_LocalRotation.y
-      value: 0.44223514
+      value: 0.30639252
       objectReference: {fileID: 0}
     - target: {fileID: 3888611276550310276, guid: 03fb6f49d936d5e429b639fccb1f29a6, type: 3}
       propertyPath: m_LocalRotation.z
-      value: -0
+      value: 0.31889704
       objectReference: {fileID: 0}
     - target: {fileID: 3888611276550310276, guid: 03fb6f49d936d5e429b639fccb1f29a6, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
+      value: 272.29132
       objectReference: {fileID: 0}
     - target: {fileID: 3888611276550310276, guid: 03fb6f49d936d5e429b639fccb1f29a6, type: 3}
       propertyPath: m_LocalEulerAnglesHint.y
-      value: 52.493
+      value: 232.4931
       objectReference: {fileID: 0}
     - target: {fileID: 3888611276550310276, guid: 03fb6f49d936d5e429b639fccb1f29a6, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
+      value: 180.00003
       objectReference: {fileID: 0}
     - target: {fileID: 4520716785383396158, guid: 03fb6f49d936d5e429b639fccb1f29a6, type: 3}
       propertyPath: m_Name
       value: Boy 1
       objectReference: {fileID: 0}
+    - target: {fileID: 7140232423310218238, guid: 03fb6f49d936d5e429b639fccb1f29a6, type: 3}
+      propertyPath: m_Controller
+      value: 
+      objectReference: {fileID: 9100000, guid: ffc80a761eba4ed18464bc752a9f0cb1, type: 2}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -5757,6 +5787,15 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 4520716785383396158, guid: 03fb6f49d936d5e429b639fccb1f29a6, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1315277881}
+    - targetCorrespondingSourceObject: {fileID: 4520716785383396158, guid: 03fb6f49d936d5e429b639fccb1f29a6, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1315277890}
+    - targetCorrespondingSourceObject: {fileID: 4520716785383396158, guid: 03fb6f49d936d5e429b639fccb1f29a6, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1315277891}
+    - targetCorrespondingSourceObject: {fileID: 4520716785383396158, guid: 03fb6f49d936d5e429b639fccb1f29a6, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1315277892}
   m_SourcePrefab: {fileID: 100100000, guid: 03fb6f49d936d5e429b639fccb1f29a6, type: 3}
 --- !u!4 &1315277880 stripped
 Transform:
@@ -5775,11 +5814,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 45c66df4b9b64134480ab2ed768510a4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::QuestNPCInteraction
-  npcName: Watot
+  npcName: Pepe
   interactionRange: 3
   interactionKey: 101
   player: {fileID: 1906787215}
-  facePlayerOnInteract: 1
+  facePlayerOnInteract: 0
   dialoguePanel: {fileID: 46998964}
   dialogueText: {fileID: 593985481}
   advanceCooldown: 0.5
@@ -5808,16 +5847,95 @@ MonoBehaviour:
   requiresAlingElenaInteraction: 0
   alingElenaObjectiveID: 
   requiredItemForDialogue: 
+  unlockAfterObjectiveID: 
   rewardItemID: 
   requiredItemID: Knife
   noRepeatAfterDelivery: 1
   objectToHideOnReward: {fileID: 0}
   onRequiredItemReceived:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1550359313}
+        m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
+        m_MethodName: SetActive
+        m_Mode: 6
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
   cutsceneAfterFirstTalk: {fileID: 0}
   dialogueCinematic: {fileID: 0}
   cinematicStartLine: 12
+--- !u!114 &1315277890
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 750345749}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a7d3c1e95b2f4e6d8c0a1b3d5e7f9a21, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BoyKnifeAnimation
+  questID: main_quest_03
+  handoverObjectiveID: Free_Pepe
+  receivedKnifeParameter: HasReceivedKnife
+--- !u!114 &1315277891
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 750345749}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f28b792e7ea64f14f9176380f57a4f14, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::NextNPCLocation
+  questID: main_quest_03
+  objectiveID: Talk_to_Mang_Rodolfo
+  targetPosition: {x: 34.638, y: 1.15, z: 5.173}
+  targetRotation: {x: 0, y: 16.792, z: 0}
+  snapToTerrain: 0
+  groundOffset: 0
+--- !u!114 &1315277892
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 750345749}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ea54a8163d38cb441a968d6f9ae28dde, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::QuestPointerTarget
+  questID: main_quest_03
+  objectiveIDs:
+  - Find_Pepe
+  markBeforeQuestStarts: 0
+  showAfterQuestID: 
+  pointAt: {fileID: 0}
+  autoHeight: 1
+  heightAbove: 2.2
+  color: {r: 1, g: 0.85, b: 0.2, a: 1}
+  label: 
+  completeWhenReached: 0
+  reachRadius: 3
+  requiredItemID: 
+  removeItem: 1
+  pressKeyToComplete: 0
+  key: 101
+  prompt: {fileID: 0}
+  showWhenDone: []
+  onCompleted:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!1001 &1330570890
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -6240,6 +6358,11 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: a7284b91505d0ba4196749e84dda252d, type: 3}
+--- !u!1 &1550359313 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 2774534527941333119, guid: a68702df51861b24e86b824951bbc828, type: 3}
+  m_PrefabInstance: {fileID: 1578777210}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &1576554109
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -6811,6 +6934,87 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 146281183362743499, guid: 962b3bc8cfb64ac4cbdf99003a38ce22, type: 3}
   m_PrefabInstance: {fileID: 1576554109}
   m_PrefabAsset: {fileID: 0}
+--- !u!1001 &1578777210
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 2774534527941333119, guid: a68702df51861b24e86b824951bbc828, type: 3}
+      propertyPath: m_Name
+      value: Ropes
+      objectReference: {fileID: 0}
+    - target: {fileID: 3392011927266596634, guid: a68702df51861b24e86b824951bbc828, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -30.92
+      objectReference: {fileID: 0}
+    - target: {fileID: 3392011927266596634, guid: a68702df51861b24e86b824951bbc828, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 4.2
+      objectReference: {fileID: 0}
+    - target: {fileID: 5773411603597635971, guid: a68702df51861b24e86b824951bbc828, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 1.2538437
+      objectReference: {fileID: 0}
+    - target: {fileID: 5773411603597635971, guid: a68702df51861b24e86b824951bbc828, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -6.3932
+      objectReference: {fileID: 0}
+    - target: {fileID: 5773411603597635971, guid: a68702df51861b24e86b824951bbc828, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0.16002
+      objectReference: {fileID: 0}
+    - target: {fileID: 5773411603597635971, guid: a68702df51861b24e86b824951bbc828, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 6.3628
+      objectReference: {fileID: 0}
+    - target: {fileID: 6348400101720815892, guid: a68702df51861b24e86b824951bbc828, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 35.128
+      objectReference: {fileID: 0}
+    - target: {fileID: 6348400101720815892, guid: a68702df51861b24e86b824951bbc828, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 1.142
+      objectReference: {fileID: 0}
+    - target: {fileID: 6348400101720815892, guid: a68702df51861b24e86b824951bbc828, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 5.4
+      objectReference: {fileID: 0}
+    - target: {fileID: 6348400101720815892, guid: a68702df51861b24e86b824951bbc828, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 0.6816517
+      objectReference: {fileID: 0}
+    - target: {fileID: 6348400101720815892, guid: a68702df51861b24e86b824951bbc828, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0.68165165
+      objectReference: {fileID: 0}
+    - target: {fileID: 6348400101720815892, guid: a68702df51861b24e86b824951bbc828, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0.18801863
+      objectReference: {fileID: 0}
+    - target: {fileID: 6348400101720815892, guid: a68702df51861b24e86b824951bbc828, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0.18801859
+      objectReference: {fileID: 0}
+    - target: {fileID: 6348400101720815892, guid: a68702df51861b24e86b824951bbc828, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6348400101720815892, guid: a68702df51861b24e86b824951bbc828, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6348400101720815892, guid: a68702df51861b24e86b824951bbc828, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: a68702df51861b24e86b824951bbc828, type: 3}
 --- !u!1 &1655333845 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 3129584402721274189, guid: c90a19eda2889a84da6a3668b44ec894, type: 3}
@@ -12401,6 +12605,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Player
       objectReference: {fileID: 0}
+    - target: {fileID: 4416926081852918481, guid: 64dce48905ffd9b4293e595fa6941544, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 4416926081852918491, guid: 64dce48905ffd9b4293e595fa6941544, type: 3}
       propertyPath: m_Height
       value: 1.3
@@ -13398,6 +13606,59 @@ Transform:
   m_Children: []
   m_Father: {fileID: 47848291}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &9300000001
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 9300000002}
+  - component: {fileID: 9300000003}
+  m_Layer: 0
+  m_Name: MapVideoController
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &9300000002
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9300000001}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &9300000003
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9300000001}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8d2e5f3b1c4a7e9d0f2b3c4d5e6a7b8c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MapVideoController
+  introVideo: {fileID: 32900000, guid: e32acc52a7bd38b4c8557302df62fdc8, type: 3}
+  outroVideo: {fileID: 0}
+  playIntroOnStart: 1
+  muteBackgroundMusicDuringVideo: 1
+  videoCanvas: {fileID: 0}
+  videoRawImage: {fileID: 0}
+  aspectRatioFitter: {fileID: 0}
+  videoPlayer: {fileID: 0}
+  videoAudioSource: {fileID: 0}
 --- !u!1001 &350000137631425620
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -13748,6 +14009,7 @@ SceneRoots:
   - {fileID: 1073345421}
   - {fileID: 430457564294519747}
   - {fileID: 848065209}
+  - {fileID: 1578777210}
   - {fileID: 3811784519221939632}
   - {fileID: 6704589}
   - {fileID: 1543393298979500354}
@@ -13758,3 +14020,4 @@ SceneRoots:
   - {fileID: 128027597}
   - {fileID: 20227151}
   - {fileID: 739223190}
+  - {fileID: 9300000002}

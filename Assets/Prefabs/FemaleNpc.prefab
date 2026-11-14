@@ -122,6 +122,7 @@ MonoBehaviour:
   requiresAlingElenaInteraction: 0
   alingElenaObjectiveID: 
   requiredItemForDialogue: 
+  unlockAfterObjectiveID: 
   rewardItemID: 
   requiredItemID: 
   noRepeatAfterDelivery: 0
